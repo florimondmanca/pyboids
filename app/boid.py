@@ -17,8 +17,9 @@ class Boid(pygame.sprite.Sprite):
 		self.steering = np.zeros(2)
 		self.leader = leader
 		self.mass = 1
-		self.max_force = 0.2
+		self.max_force = 1
 		self.max_vel = params.V_LIM
+		self.wandering_angle = np.pi*(2*np.random.rand() - 1)
 
 	def get_pos(self):
 		return self._pos
@@ -44,7 +45,6 @@ class Boid(pygame.sprite.Sprite):
 		self.pos = self._pos + self.vel
 		# rotate sprite
 		self.rotate()
-		self.steering = np.zeros(2)
 
 	def dist(self, other):
 		return np.sqrt(np.dot(self._pos - other.pos, self._pos - other.pos))
@@ -53,4 +53,7 @@ class Boid(pygame.sprite.Sprite):
 		screen.blit(self.image, self.rect)
 		if params.DEBUG:
 			pygame.draw.line(screen, pygame.Color("red"),
-				tuple(self.pos), tuple(self.pos + 2*self.vel))
+				tuple(self.pos), tuple(self.pos + 4*self.vel))
+			pygame.draw.line(screen, pygame.Color("blue"), tuple(self.pos), tuple(self.pos + 4*self.steering))
+		self.steering = np.zeros(2)
+

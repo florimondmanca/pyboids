@@ -23,7 +23,8 @@ SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 COL = SCREEN_WIDTH//12
 ROW = SCREEN_HEIGHT//9
 FPS = 30
-BACKGROUND = pygame.Color("slate gray")
+MENU_BACKGROUND = pygame.Color("slate gray")
+SIMULATION_BACKGROUND = pygame.Color("slate gray")
 FONTS = {
 	"hallo-sans-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
 	"hallo-sans-bold": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans black.otf"])),
@@ -58,6 +59,9 @@ R_S = 20  # separation radius, pixels
 MARGIN = 50  # pixels
 V_B = 10  # speed impulse when out of margins
 V_LIM = 10.  # maximum speed
+WANDER_DIST = 2
+WANDER_RADIUS = 1
+WANDER_ANGLE = 90
 
 # multi-threading parameters
 N_CPU = os.cpu_count()

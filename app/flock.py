@@ -10,24 +10,27 @@ from . import params, utils
 from .boid import Boid
 
 class Flock(pygame.sprite.Sprite):
-	max_speed = 10
-
+	"""
+	Flock() -> Flock
+	Represents a set of boids that obey to certain behaviours.
+	"""
 	def __init__(self):
 		super().__init__()
 		self.boids = pygame.sprite.Group()
 		self.behaviours = {
 			"seek": True,
+			"flee": False,
+			"wander": False
 		}
 
 	def add_boid(self, pos):
 		leader = len(self.boids) == 0
 		self.boids.add(Boid(
 			pos=np.array(pos, dtype=np.float64),
-			vel=np.array([self.max_speed*(2*(random()<0.5) - 1)*(0.5+0.5*random()), self.max_speed*(2*(random()<0.5) - 1)*(0.5+0.5*random())], dtype=np.float64),
+			vel=np.array([params.V_LIM*(2*(random()<0.5) - 1)*(0.5+0.5*random()), params.V_LIM*(2*(random()<0.5) - 1)*(0.5+0.5*random())], dtype=np.float64),
 			leader=leader
 			)
 		)
-
 
 	def find_neighbors(self, boid, radius):
 		neighbors = []
@@ -48,20 +51,28 @@ class Flock(pygame.sprite.Sprite):
 			if boid.pos[1] > params.SCREEN_HEIGHT - params.MARGIN:
 				boid.steer(np.array([0., -params.V_B]))
 
-	def seek(self, seek_pos):
-		""" Makes all boids seek after a given 'seek_pos' position, eg the mouse's position. """
-		seek_pos = np.array([seek_pos[0], seek_pos[1]], dtype=np.float64)
+	def seek(self, target):
+		""" Makes all boids seek to go to a target. """
+		target = np.array(target, dtype=np.float64)
 		for boid in self.boids:
-			boid.steer(utils.normalize(seek_pos - boid.pos) * self.max_speed - boid.vel)
+			boid.steer(utils.normalize(target - boid.pos) * params.V_LIM - boid.vel)
 
-	def toggle_seek(self):
-		self.behaviours["seek"] = not self.behaviours["seek"]
+	def flee(self, target):
+		""" Makes all boids fly away from a target. """
+		target = np.array(target, dtype=np.float64)
+		for boid in self.boids:
+			boid.steer(utils.normalize(boid.pos - target) * params.V_LIM - boid.vel)
 
-	def parallel_update_funcs(self, q):
-		while not q.empty():
-			operation = q.get()
-			operation()
-			q.task_done()
+	def wander(self):
+		""" Makes the boids randomly wander around. """
+		for i, boid in enumerate(self.boids):
+			# calculate circle center
+			circle_center = utils.normalize(boid.vel) * params.WANDER_DIST
+			# calculate displacement force
+			c, s = np.cos(boid.wandering_angle), np.sin(boid.wandering_angle)
+			displacement = np.dot(np.array([[c, -s], [s, c]]), utils.normalize(boid.vel) * params.WANDER_RADIUS)
+			boid.steer(circle_center + displacement)
+			boid.wandering_angle += params.WANDER_ANGLE * (2*np.random.rand() - 1)
 
 	def parallel_update_boids(self, q):
 		while not q.empty():
@@ -70,11 +81,19 @@ class Flock(pygame.sprite.Sprite):
 			q.task_done()
 
 	def update(self, motion_event, click_event):
-		if click_event:
+		# add boid if required by a click
+		if click_event and click_event.button == 3:
 			self.add_boid(click_event.pos)
+		# apply steering effets
+		target = pygame.mouse.get_pos()
 		if self.behaviours["seek"]:
-			self.seek(pygame.mouse.get_pos())
+			self.seek(target)
+		if self.behaviours["flee"]:
+			self.flee(target)
+		if self.behaviours["wander"]:
+			self.wander()
 		self.remain_in_screen()
+		# update all boids using multithreading
 		q = queue.Queue()
 		for boid in self.boids:
 			q.put(boid)

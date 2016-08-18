@@ -32,6 +32,20 @@ def grid_to_px(grid_pos):
     """ Converts grid position to pixel position """
     return grid_pos[0] * params.COL, grid_pos[1] * params.ROW
 
+def normalize(vector):
+    n = np.sqrt(np.dot(vector, vector))
+    if n < 1e-13:
+        return np.zeros(2)
+    else:
+        return np.array(vector) / n
+
+def truncate(vector, max_norm):
+    n = np.sqrt(np.dot(vector, vector))
+    if n > max_norm:
+        return normalize(vector) * max_norm
+    else:
+        return vector
+
 
 class Message(pygame.sprite.Sprite):
     """
@@ -44,8 +58,19 @@ class Message(pygame.sprite.Sprite):
 
     def __init__(self, pos, text="", font=params.BODY_FONT):
         super().__init__()
+        self._text = text
+        self.font = font
         self.image, self.rect = mktext(text, font)
         self.rect.center = grid_to_px(pos)
+
+    def get_text(self):
+        return self._text
+    def set_text(self, text):
+        self._text = text
+        self.image, rect = mktext(text, self.font)
+        rect.topleft = self.rect.topleft
+        self.rect = rect
+    text = property(get_text, set_text)
 
     def update(self, motion_event, click_event):
         pass
@@ -87,17 +112,25 @@ class Button(Message):
                 (self.rect.bottomright[0], self.rect.bottomright[1] + 5)
             )
 
+class ToggleButton(Button):
+    """
+    ToggleButton(pos, text="", font=params.BODY_FONT, action=None, switch_alt="ON OFF", init_active=True)
+    Derives from Button.
+    A button sprite which displays a phrase and a switch associated to that phrase. The switch text can be provided as a string with two words separated by a space, eg "ON OFF" (default) or "1 0".
+    """
+    def __init__(self, pos, text="", font=params.BODY_FONT, action=None, switch_alt="ON OFF", init_active=True):
+        on, off = switch_alt.split()
+        self.switch_text = {True: on, False: off}
+        self.on = init_active
+        self.phrase = text
+        super().__init__(pos, text=text + self.switch_text[init_active], font=font, action=action)
+        self.rect.midleft = grid_to_px(pos)
 
-def normalize(vector):
-    n = np.sqrt(np.dot(vector, vector))
-    if n < 1e-13:
-        return np.zeros(2)
-    else:
-        return vector / n
+    def toggle(self):
+        self.on = not self.on
+        self.text = self.phrase + self.switch_text[self.on]
 
-def truncate(vector, max_norm):
-    n = np.sqrt(np.dot(vector, vector))
-    if n > max_norm:
-        return normalize(vector) * max_norm
-    else:
-        return vector
+    def update(self, motion_event, click_event):
+        super().update(motion_event, click_event)
+        if click_event and self.hover:
+            self.toggle()
