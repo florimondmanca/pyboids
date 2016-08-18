@@ -4,7 +4,6 @@
 
 import pygame
 from .flock import Flock
-from .boid import Boid
 from . import params, utils
 
 def actionize(func, self, behaviour):
@@ -35,16 +34,26 @@ class Simulation:
 	def init_run(self):
 		self.to_update = pygame.sprite.Group(
 			self.flock,
+			utils.ToggleButton(
+				pos=(0.2, 8),
+				text="Adding : ",
+				labels=self.flock.kinds,
+				init_label=self.flock.add_kind,
+				action=lambda: self.flock.switch_element())
 		)
+		# add behaviour toggle buttons
 		for k, behaviour in enumerate(self.flock.behaviours):
+			# v decorate to prevent a bug
 			def do_action(self, behaviour):
 				self.toggle_behaviour(behaviour)
 			do_action = actionize(do_action, self, behaviour)
+			# ^
 			self.to_update.add(utils.ToggleButton(
-				pos=(1*(k+1), 0.2),
+				pos=(0.2, 0.3*(1+k)),
 				text="{} : ".format(behaviour.title()),
-				action=do_action,
-				init_active=self.flock.behaviours[behaviour])
+				labels="on off".split(),
+				init_label="off on".split()[self.flock.behaviours[behaviour]],
+				action=do_action)
 			)
 		self.to_display = pygame.sprite.Group(
 			self.to_update,
@@ -56,9 +65,9 @@ class Simulation:
 		}
 		self.init_run()
 		while self.running:
+			self.clock.tick(params.FPS)
 			motion_event, click_event = None, None
 			self.screen.fill(params.SIMULATION_BACKGROUND)
-			self.clock.tick(params.FPS)
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False

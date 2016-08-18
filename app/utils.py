@@ -32,8 +32,11 @@ def grid_to_px(grid_pos):
     """ Converts grid position to pixel position """
     return grid_pos[0] * params.COL, grid_pos[1] * params.ROW
 
+def norm(vector):
+    return np.sqrt(np.dot(vector, vector))
+
 def normalize(vector):
-    n = np.sqrt(np.dot(vector, vector))
+    n = norm(vector)
     if n < 1e-13:
         return np.zeros(2)
     else:
@@ -112,23 +115,24 @@ class Button(Message):
                 (self.rect.bottomright[0], self.rect.bottomright[1] + 5)
             )
 
+
 class ToggleButton(Button):
     """
-    ToggleButton(pos, text="", font=params.BODY_FONT, action=None, switch_alt="ON OFF", init_active=True)
+    ToggleButton(pos, text="", font=params.BODY_FONT, action=None, labels=[""], init_label="") -> ToggleButton
     Derives from Button.
-    A button sprite which displays a phrase and a switch associated to that phrase. The switch text can be provided as a string with two words separated by a space, eg "ON OFF" (default) or "1 0".
+    A button sprite which has a series of labels that gets updated on click. Each click changes the label in a circular manner.
     """
-    def __init__(self, pos, text="", font=params.BODY_FONT, action=None, switch_alt="ON OFF", init_active=True):
-        on, off = switch_alt.split()
-        self.switch_text = {True: on, False: off}
-        self.on = init_active
+    def __init__(self, pos, text="", font=params.BODY_FONT, action=None, labels="", init_label=""):
         self.phrase = text
-        super().__init__(pos, text=text + self.switch_text[init_active], font=font, action=action)
+        self.labels = labels  # list of strings
+        self.label = init_label.replace("-", " ").title()
+        super().__init__(pos, text=text + self.label, font=font, action=action)
         self.rect.midleft = grid_to_px(pos)
 
     def toggle(self):
-        self.on = not self.on
-        self.text = self.phrase + self.switch_text[self.on]
+        self.labels = np.roll(self.labels, -1)
+        self.label = self.labels[0].replace("-", " ").title()
+        self.text = self.phrase + self.label
 
     def update(self, motion_event, click_event):
         super().update(motion_event, click_event)

@@ -5,6 +5,7 @@
 import os
 import pygame
 import pygame.freetype
+import pygame.gfxdraw
 pygame.init()
 pygame.freetype.init()
 
@@ -49,19 +50,24 @@ H3_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h3"])
 H4_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h4"])
 H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
 
-# Boid simulation parameters
-K_A = 0.1  # alignment force
-K_C = 0.01  # cohesion force
-K_S = 0.1  # separation force
-R_A = 200  # alignment radius, pixels
-R_C = 200  # cohesion radius, pixels
-R_S = 20  # separation radius, pixels
-MARGIN = 50  # pixels
-V_B = 10  # speed impulse when out of margins
-V_LIM = 10.  # maximum speed
-WANDER_DIST = 2
-WANDER_RADIUS = 1
-WANDER_ANGLE = 90
+# Boid staying inside the screen box
+BOX_MARGIN = 150  # pixels
+STEER_INSIDE = 0.8  # speed impulse when out of margins
+# Boid steering parameters
+BOID_MAX_FORCE = 1.
+BOID_MAX_SPEED = 10.
+# Boid seek parameters
+R_SEEK = 100
+# Boid flee parameters
+R_FLEE = 300
+# Boid wandering parameters
+WANDER_DIST = 1
+WANDER_RADIUS = 0.5
+WANDER_ANGLE = 0.2
+
+# Obstacles parameters
+OBSTACLE_DEFAULT_RADIUS = 30
+OBSTACLE_COLOR = pygame.Color("dark slate gray")
 
 # multi-threading parameters
 N_CPU = os.cpu_count()
