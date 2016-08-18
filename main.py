@@ -5,4 +5,4 @@
 import app
 
 if __name__ == '__main__':
-	app.Simulation().main()
+	app.Menu().main()

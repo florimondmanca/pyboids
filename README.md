@@ -93,3 +93,5 @@ Here are the classes we'll need :
 ## Ressources
 
 http://www.vergenet.net/~conrad/boids/pseudocode.html
+
+http://gamedevelopment.tutsplus.com/series/understanding-steering-behaviors--gamedev-12732

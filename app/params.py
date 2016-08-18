@@ -9,6 +9,7 @@ pygame.init()
 pygame.freetype.init()
 
 # General parameters
+DEBUG = True
 TITLE = "PYBOIDS"
 SUBTITLE = "An implementation of Boids algorithm in Python."
 CAPTION = "PyBoids - Flocking Behaviour Simulator"
@@ -21,7 +22,7 @@ SCREEN_HEIGHT, SCREEN_WIDTH = 720, 960
 SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 COL = SCREEN_WIDTH//12
 ROW = SCREEN_HEIGHT//9
-FPS = 60
+FPS = 30
 BACKGROUND = pygame.Color("slate gray")
 FONTS = {
 	"hallo-sans-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
@@ -46,3 +47,17 @@ H2_FONT = (FONTS["hallo-sans"], FONT_SIZES["h2"])
 H3_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h3"])
 H4_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h4"])
 H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
+
+# Boid simulation parameters
+K_A = 0.1  # alignment force
+K_C = 0.01  # cohesion force
+K_S = 0.1  # separation force
+R_A = 200  # alignment radius, pixels
+R_C = 200  # cohesion radius, pixels
+R_S = 20  # separation radius, pixels
+MARGIN = 50  # pixels
+V_B = 10  # speed impulse when out of margins
+V_LIM = 10.  # maximum speed
+
+# multi-threading parameters
+N_CPU = os.cpu_count()

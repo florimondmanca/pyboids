@@ -88,45 +88,16 @@ class Button(Message):
             )
 
 
-class Vector2:
-    def __init__(self, *args):
-        if len(args) == 2:
-            x, y = args
-        elif len(args) == 1:
-            x, y = args[0]
-        elif len(args) == 0:
-            x, y = 0, 0
-        else:
-            raise TypeError("Vector2 expected (x, y) or pos, got {}".format(args))
-        self._data = np.array([x, y])
+def normalize(vector):
+    n = np.sqrt(np.dot(vector, vector))
+    if n < 1e-13:
+        return np.zeros(2)
+    else:
+        return vector / n
 
-    def get_x(self):
-        return self._data[0]
-    def set_x(self, x):
-        self._data[0] = x
-    x = property(get_x, set_x)
-
-    def get_y(self):
-        return self._data[1]
-    def set_y(self, x):
-        self._data[1] = y
-    y = property(get_y, set_y)
-
-    @property
-    def data(self):
-        return tuple(self._data)
-
-    def copy(self):
-        return Vector2(self.x, self.y)
-
-    def __add__(self, other):
-        self._data += other._data
-
-    def __sub__(self, other):
-        self._data -= other._data
-
-    def __mul__(self, other):
-        self._data *= other  # other is scalar
-
-    def __truediv__(self, other):
-        self._data /= other  # other is scalar
+def truncate(vector, max_norm):
+    n = np.sqrt(np.dot(vector, vector))
+    if n > max_norm:
+        return normalize(vector) * max_norm
+    else:
+        return vector
