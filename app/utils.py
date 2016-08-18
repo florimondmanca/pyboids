@@ -89,7 +89,15 @@ class Button(Message):
 
 
 class Vector2:
-    def __init__(self, x=0, y=0):
+    def __init__(self, *args):
+        if len(args) == 2:
+            x, y = args
+        elif len(args) == 1:
+            x, y = args[0]
+        elif len(args) == 0:
+            x, y = 0, 0
+        else:
+            raise TypeError("Vector2 expected (x, y) or pos, got {}".format(args))
         self._data = np.array([x, y])
 
     def get_x(self):

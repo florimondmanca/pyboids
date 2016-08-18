@@ -3,34 +3,29 @@
 # in Python and Pygame
 
 import pygame
-from . import params
-from . import utils
+from random import random
+from . import params, utils
+from .boid import Boid
 
 class Flock(pygame.sprite.Sprite):
-	_pos = utils.Vector2()
-	_vel = utils.Vector2()
+	boids = pygame.sprite.Group()
+	default_speed = 10
 
-	def __init__(self, pos=None, vel=None):
+	def __init__(self):
 		super().__init__()
-		self.image, self.rect = utils.load_image("boid.png")
-		if pos is not None:
-			self._pos = pos
-		if vel is not None:
-			self._vel = vel
 
-	def _get_pos(self):
-		return self._pos
-	def _set_pos(self, pos):
-		self._pos = pos
-		self.rect.center = pos.data
+	def add_boid(self, pos):
+		self.boids.add(Boid(
+			pos=utils.Vector2(pos),
+			vel=utils.Vector2(self.default_speed*(2*random() - 1), self.default_speed*(2*random() - 1))
+			)
+		)
 
-	def _get_vel(self):
-		return self._vel
-	def _set_vel(self, vel):
-		self._vel = vel
-
-	def update(self):
-		pass
+	def update(self, motion_event, click_event):
+		if click_event:
+			self.add_boid(click_event.pos)
+		self.boids.update(motion_event, click_event)
 
 	def display(self, screen):
-		screen.blit(self.image, self.rect)
+		for boid in self.boids:
+			boid.display(screen)

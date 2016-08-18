@@ -3,15 +3,11 @@
 # in Python and Pygame
 
 import pygame
-from . import params
 from .flock import Flock
 from .boid import Boid
-from . import utils
+from . import params, utils
 
 key_to_function = {
-	# insert lambda hooks here
-}
-button_to_function = {
 	# insert lambda hooks here
 }
 
@@ -34,16 +30,12 @@ class Simulation:
 	def main(self):
 		self.menu()
 
-	def run(self):
-		print("Running")
-		pass
-
 	def menu(self):
-		self.to_update.add(
+		self.to_update = pygame.sprite.Group(
 			utils.Button(pos=(6, 5), text="Start", font=params.H3_FONT, action=lambda: self.run()),
 			utils.Button(pos=(6, 8), text="Quit", font=params.H3_FONT, action=lambda: self.quit())
 		)
-		self.to_display.add(
+		self.to_display = pygame.sprite.Group(
 			self.to_update,
 			utils.Message(pos=(6, 2), text=params.TITLE, font=params.H1_FONT),
 			utils.Message(pos=(6, 2.75), text=params.SUBTITLE),
@@ -65,6 +57,35 @@ class Simulation:
 			self.display()
 			pygame.display.flip()
 		pygame.quit()
+
+	def run(self):
+		key_to_function = {
+			pygame.K_ESCAPE: lambda: "END",
+		}
+		self.to_update = pygame.sprite.Group(
+			self.flock
+		)
+		self.to_display = pygame.sprite.Group(
+			self.to_update,
+		)
+		while self.running:
+			motion_event, click_event = None, None
+			self.screen.fill(params.BACKGROUND)
+			self.clock.tick(params.FPS)
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.running = False
+				elif event.type == pygame.KEYDOWN and event.key in key_to_function:
+					res = key_to_function[event.key](self, event)
+					if res == "END":
+						return
+				elif event.type == pygame.MOUSEBUTTONDOWN:
+					click_event = event
+				elif event.type == pygame.MOUSEMOTION:
+					motion_event = event
+			self.update(motion_event, click_event)
+			self.display()
+			pygame.display.flip()
 
 	def quit(self):
 		self.running = False
