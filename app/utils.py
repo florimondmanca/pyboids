@@ -4,6 +4,7 @@
 
 import os
 import pygame
+import numpy as np
 from . import params
 
 
@@ -12,7 +13,7 @@ def load_image(*path):
     Loads the image using the full path to the image.
     Manages alpha conversion (e.g. png's).
     """
-    image = pygame.image.load(os.path.join(params.IMG_DIR, path))
+    image = pygame.image.load(os.path.join(params.IMG_DIR, *list(path)))
     if image.get_alpha() is None:
         image = image.convert()
     else:
