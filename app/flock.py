@@ -5,7 +5,6 @@
 import pygame
 import numpy as np
 from random import random
-import threading, queue
 from . import params, utils
 from . import boid
 from .obstacle import Obstacle
@@ -23,11 +22,13 @@ class Flock(pygame.sprite.Sprite):
 		self.boids = pygame.sprite.Group()
 		self.obstacles = pygame.sprite.Group()
 		self.behaviours = {
-			"pursue": True,
-			"escape": True,
+			"pursue": False,
+			"escape": False,
 			"wander": True,
 			"avoid collision": True,
-			"follow leader": True,
+			"follow leader": False,
+			"align": False,
+			"separate": False,
 		}
 		self.kinds = ["normal-boid", "leader-boid", "obstacle"]
 		self.add_kind = "normal-boid"
@@ -49,7 +50,6 @@ class Flock(pygame.sprite.Sprite):
 			self.boids.add(self.leader_boid)
 		elif self.add_kind == "obstacle":
 			self.obstacles.add(Obstacle(pos=pos))
-		print("There are now {} boids and {} obstacles.".format(len(self.boids), len(self.obstacles)))
 
 	def remain_in_screen(self):
 		for boid in self.boids:
@@ -64,7 +64,7 @@ class Flock(pygame.sprite.Sprite):
 
 	def seek_single(self, target_pos, boid):
 		d = boid.dist_pos(target_pos)
-		boid.steer(utils.normalize(target_pos - boid.pos) * params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1) - boid.vel)
+		boid.steer(utils.normalize(target_pos - boid.pos) * params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1) - boid.vel, alt_max=params.BOID_MAX_FORCE/50)
 
 	def seek(self, target_boid):
 		""" Makes all normal boids seek to go to a target. """
@@ -73,7 +73,7 @@ class Flock(pygame.sprite.Sprite):
 
 	def flee_single(self, target_pos, boid):
 		if boid.dist_pos2(target_pos) < params.R_FLEE*params.R_FLEE:
-				boid.steer(utils.normalize(boid.pos - target_pos) * params.BOID_MAX_SPEED - boid.vel)
+				boid.steer(utils.normalize(boid.pos - target_pos) * params.BOID_MAX_SPEED - boid.vel, alt_max=params.BOID_MAX_FORCE/10)
 
 	def flee(self, target_boid):
 		""" Makes all normal boids fly away from a target. """
@@ -134,7 +134,7 @@ class Flock(pygame.sprite.Sprite):
 	def separate_single(self, boid):
 		n_neighbors = 0
 		force = np.zeros(2)
-		for other_boid in self.normal_boids:
+		for other_boid in self.boids:
 			if other_boid != boid and pygame.sprite.collide_rect(boid, other_boid):
 				force -= other_boid.pos - boid.pos
 				n_neighbors += 1
@@ -142,86 +142,59 @@ class Flock(pygame.sprite.Sprite):
 			force /= n_neighbors
 		boid.steer(utils.normalize(force) * params.MAX_SEPARATION_FORCE)
 
+	def separate(self):
+		for boid in self.boids:
+			self.separate_single(boid)
+
 	def follow_leader(self, leader):
 		""" Makes all normal boids follow a leader, staying at a certain distance from it, moving away when they're in the leader's path, and avoiding cluttering of boids behind the leader. """
 		nvel = utils.normalize(leader.vel)
 		behind = leader.pos - nvel * params.LEADER_BEHIND_DIST
 		ahead = leader.pos + nvel * params.LEADER_AHEAD_DIST
-		total = 0
 		for boid in self.normal_boids:
 			self.seek_single(behind, boid)
-			t = time()
-			self.separate_single(boid)
-			total += time() - t
 			self.escape_single(ahead, leader.vel, boid)
-		print("    Separate: {}".format(total*1000))
 
-	def parallel_update_boids(self, q):
-		while not q.empty():
-			boid = q.get()
-			boid.update()
-			q.task_done()
+	def align(self):
+		""" Tendency of boids to align their velocities """
+		r2 = params.ALIGN_RADIUS * params.ALIGN_RADIUS
+		# find the neighbors
+		boids = list(self.normal_boids)
+		neighbors = [ [] for boid in boids]
+		for i, boid in enumerate(boids):
+			for j, other_boid in enumerate(boids):
+				if j not in neighbors[i] and other_boid != boid and boid.dist2(other_boid) < r2:
+					neighbors[i].append(j)
+					neighbors[j].append(i)
+		for i, boid in enumerate(boids):
+			n_neighbors = len(neighbors[i])
+			if n_neighbors:
+				desired = np.zeros(2)
+				for j in neighbors[i]:
+					desired += boids[j].vel
+				boid.steer(desired/n_neighbors - boid.vel)
 
-	def parallel_update_boids_func(self, q):
-		while not q.empty():
-			func, args = q.get()
-			func(*args)
-			q.task_done()
+	def flock(self):
+		""" Simulates flocking behaviour : alignment + separation + cohesion """
+		self.align()
+		for boid in self.boids:
+			self.separate_single(boid)
 
 	def update(self, motion_event, click_event):
-		# add element if required by a click
-		if click_event and click_event.button == 3:
-			self.add_element(click_event.pos)
-		# apply steering effets using multithreading
-		# func_q = queue.Queue()
-		# if self.leader_boid:
-		# 	target = self.leader_boid.sprite
-		# 	if self.behaviours["pursue"]:
-		# 		func_q.put((self.pursue, [target]))
-		# 	if self.behaviours["escape"]:
-		# 		func_q.put((self.escape, [target]))
-		# 	if self.behaviours["follow leader"]:
-		# 		func_q.put((self.follow_leader, [target]))
-		# if self.behaviours["wander"]:
-		# 	func_q.put((self.wander, []))
-		# if self.behaviours["avoid collision"]:
-		# 	func_q.put((self.avoid_collision, []))
-		# func_q.put((self.remain_in_screen, []))
-		# for i in range(params.N_CPU):
-		# 	threading.Thread(target=self.parallel_update_boids_func, args=[func_q]).start()
-		# func_q.join()
+		# apply steering behaviours
 		if self.leader_boid:
 			target = self.leader_boid.sprite
-			if self.behaviours["pursue"]:
-				t = time()
-				self.pursue(target)
-				print("Pursue: {}".format(1000*(time()-t)))
-			if self.behaviours["escape"]:
-				t = time()
-				self.escape(target)
-				print("Escape: {}".format(1000*(time()-t)))
-			if self.behaviours["follow leader"]:
-				t = time()
-				self.follow_leader(target)
-				print("Follow leader: {}".format(1000*(time()-t)))
-		if self.behaviours["wander"]:
-			t = time()
-			self.wander()
-			print("Wander: {}".format(1000*(time()-t)))
-		if self.behaviours["avoid collision"]:
-			t = time()
-			self.avoid_collision()
-			print("Avoid collision: {}".format(1000*(time()-t)))
-		t = time()
+			self.behaviours["pursue"] and self.pursue(target)
+			self.behaviours["escape"] and self.escape(target)
+			self.behaviours["follow leader"] and self.follow_leader(target)
+		self.behaviours["wander"] and self.wander()
+		self.behaviours["avoid collision"] and self.obstacles and self.avoid_collision()
+		self.behaviours["align"] and self.align()
+		self.behaviours["separate"] and self.separate()
 		self.remain_in_screen()
-		print("Remain: {}".format(1000*(time()-t)))
-		# update all boids using multithreading
-		q = queue.Queue()
+		# update all boids
 		for boid in self.boids:
-			q.put(boid)
-		for i in range(params.N_CPU):
-			threading.Thread(target=self.parallel_update_boids, args=[q]).start()
-		q.join()
+			boid.update()
 
 	def display(self, screen):
 		for obstacle in self.obstacles:

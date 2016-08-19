@@ -80,11 +80,45 @@ class Message(pygame.sprite.Sprite):
         self.rect = rect
     text = property(get_text, set_text)
 
-    def update(self, motion_event, click_event):
-        pass
-
     def display(self, screen):
         screen.blit(self.image, self.rect)
+
+
+class TempMessage(Message):
+    """
+    TempMessage(pos, text="", font=params.H4_FONT, duration=100) -> TempMessage
+    A message that only displays for a certain amount of time (duration given in number of frames - default is 150 frames).
+    """
+    def __init__(self, pos, text="", font=params.H4_FONT, duration=100):
+        super().__init__(pos, text, font)
+        self.duration = duration
+        self.counter = 0
+
+    def update(self, motion_event, click_event):
+        self.counter += 1
+        if self.counter == self.duration:
+            self.kill()
+
+
+class FPSMessage(Message):
+    """
+    FPSMessage(pos, text="", font=params.BODY_FONT, n_frames=20) -> FPSMessage
+    A message that displays the FPS. Updates every 'n_frames' frames.
+    """
+    def __init__(self, pos, text="", font=params.BODY_FONT, n_frames=20):
+        Message.__init__(self, pos, text, font)
+        self.n_frames = n_frames
+        self.counter = 0
+        self.time = 0
+
+    def update(self, time):
+        self.counter += 1
+        self.time += time
+        if self.counter == self.n_frames:
+            self.time /= self.n_frames
+            self.text = "FPS: {}".format(round(1/self.time, 1))
+            self.counter = 0
+            self.time = 0
 
 
 class Button(Message):
@@ -93,14 +127,10 @@ class Button(Message):
     Derives from Message.
     A text button sprite that underlines itself under hover. It can be associated with an action that is triggered by click.
     """
-    hover = False  # bool
-    action = lambda *args, **kwargs: None  # function
-
     def __init__(self, pos, text="", font=params.BODY_FONT, action=None):
         super().__init__(pos, text, font)
         self.hover = False  # True when mouse hovers the button
-        if action is not None:
-            self.action = action
+        self.action = action
 
     def update(self, motion_event, click_event):
         if motion_event:
@@ -108,12 +138,12 @@ class Button(Message):
                 self.hover = False
             elif not self.hover and self.rect.collidepoint(motion_event.pos):
                 self.hover = True
-        if click_event and self.hover:
+        if self.action and click_event and self.hover:
             self.action()
 
     def display(self, screen):
         super().display(screen)
-        if self.hover:
+        if self.action and self.hover:
             pygame.draw.line(screen,
                 params.FONT_COLOR,
                 (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5),
@@ -132,7 +162,8 @@ class ToggleButton(Button):
         self.labels = labels  # list of strings
         self.label = init_label.replace("-", " ").title()
         super().__init__(pos, text=text + self.label, font=font, action=action)
-        self.labels = np.roll(labels, -labels.index(init_label))
+        if self.labels:
+            self.labels = np.roll(labels, -labels.index(init_label))
         self.rect.midleft = grid_to_px(pos)
 
     def toggle(self):
@@ -142,5 +173,5 @@ class ToggleButton(Button):
 
     def update(self, motion_event, click_event):
         super().update(motion_event, click_event)
-        if click_event and self.hover:
+        if click_event and self.hover and len(self.labels) > 0:
             self.toggle()

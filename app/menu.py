@@ -35,14 +35,17 @@ class Menu:
 
 	def main(self):
 		self.to_update = pygame.sprite.Group(
-			utils.Button(pos=(6, 5), text="Start", font=params.H3_FONT, action=lambda: self.start_simulation()),
+			utils.Button(pos=(6, 6), text="Start", font=params.H3_FONT, action=lambda: self.start_simulation()),
 			utils.Button(pos=(6, 8), text="Quit", font=params.H3_FONT, action=lambda: self.quit())
 		)
 		self.to_display = pygame.sprite.Group(
 			self.to_update,
 			utils.Message(pos=(6, 2), text=params.TITLE, font=params.H1_FONT),
-			utils.Message(pos=(6, 2.75), text=params.SUBTITLE),
+			utils.Message(pos=(6, 3), text=params.SUBTITLE, font=params.H5_FONT),
 		)
+		texts = """~\nThere are three entities : Boid - Leader boid - Obstacle.\nRight click to add an entity to the simulation space.\nYou can play with many different behaviors by toggle them on or off.\n \nHave fun !""".split("\n")
+		self.to_display.add(utils.Message(pos=(6, 3.3+0.3*k), text=t) for k, t in enumerate(texts))
+
 		while self.running:
 			motion_event, click_event = None, None
 			self.screen.fill(params.MENU_BACKGROUND)

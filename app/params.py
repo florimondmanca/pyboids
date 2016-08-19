@@ -10,10 +10,10 @@ pygame.init()
 pygame.freetype.init()
 
 # General parameters
-DEBUG = False
-TITLE = "PYBOIDS"
-SUBTITLE = "An implementation of Boids algorithm in Python."
-CAPTION = "PyBoids - Flocking Behaviour Simulator"
+DEBUG = True
+TITLE = "PyBoids"
+SUBTITLE = "An implementation of steering behaviours."
+CAPTION = "PyBoids - Steering Behaviour Simulator"
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 IMG_DIR = os.path.join(BASE_DIR, *["static", "img"])
 FONTS_DIR = os.path.join(BASE_DIR, *["static", "fonts"])
@@ -21,11 +21,12 @@ FONTS_DIR = os.path.join(BASE_DIR, *["static", "fonts"])
 # Screen and viewing parameters
 SCREEN_HEIGHT, SCREEN_WIDTH = 720, 960
 SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
+SCREEN_CENTER = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
 COL = SCREEN_WIDTH//12
 ROW = SCREEN_HEIGHT//9
 FPS = 30
 MENU_BACKGROUND = pygame.Color("slate gray")
-SIMULATION_BACKGROUND = pygame.Color("slate gray")
+SIMULATION_BACKGROUND = pygame.Color("dark slate gray")
 FONTS = {
 	"hallo-sans-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
 	"hallo-sans-bold": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans black.otf"])),
@@ -51,30 +52,33 @@ H4_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h4"])
 H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
 
 # Boid staying inside the screen box
-BOX_MARGIN = 100  # pixels
-STEER_INSIDE = 3  # speed impulse when out of margins
+BOX_MARGIN = 200  # pixels
+STEER_INSIDE = 6.  # speed impulse when out of margins
 # Boid steering parameters
 BOID_MAX_FORCE = 10.
-BOID_MAX_SPEED = 5.
+BOID_MAX_SPEED = 7.
 # Boid seek parameters
 R_SEEK = 100
 # Boid flee parameters
-R_FLEE = 100
+R_FLEE = 200
 # Boid wandering parameters
-WANDER_DIST = 1.5
-WANDER_RADIUS = 1.0
+WANDER_DIST = 4.5
+WANDER_RADIUS = 3.0
 WANDER_ANGLE = 1.0  # degrees
 # Boid obstacle avoidance parameters
 MAX_SEE_AHEAD = 50  # pixels
 MAX_AVOID_FORCE = 10.
 # Boid separation parameters
 SEPARATION_DIST = 70
-MAX_SEPARATION_FORCE = 5.
+MAX_SEPARATION_FORCE = 8.
 # Leader following parameters
 LEADER_BEHIND_DIST = 10  # pixels
-LEADER_AHEAD_DIST = 70
+LEADER_AHEAD_DIST = 40
 # Obstacles parameters
 OBSTACLE_DEFAULT_RADIUS = 40
-
+# Boid alignment parameters
+ALIGN_RADIUS = 200
+# Boid cohesion parameters
+COHERE_RADIUS = 300
 # multi-threading parameters
 N_CPU = os.cpu_count()

@@ -21,6 +21,17 @@ class Simulation:
 		self.flock = Flock()
 		self.to_update = pygame.sprite.Group()
 		self.to_display = pygame.sprite.Group()
+		self.temp_message = pygame.sprite.GroupSingle()
+		self.fps_message = utils.FPSMessage(pos=(11, 0.2), text="FPS: ...")
+
+	def add_element(self, pos):
+		self.flock.add_element(pos)
+		if self.temp_message:
+			self.temp_message.sprite.kill()
+		self.temp_message.add(utils.TempMessage(
+			pos=(6, 1),
+			text="Number of boids: {}".format(len(self.flock.boids)) if "boid" in self.flock.add_kind else "Number of obstacles: {}".format(len(self.flock.obstacles))
+			))
 
 	def toggle_behaviour(self, behaviour):
 		self.flock.behaviours[behaviour] = not self.flock.behaviours[behaviour]
@@ -41,18 +52,26 @@ class Simulation:
 
 	def init_run(self):
 		# add 40 boids to the flock
-		for x in range(1, 11):
-			for y in range(3, 7):
-				self.flock.add_element(utils.grid_to_px((x, y)))
-
+		# for x in range(1, 11):
+		# 	for y in range(3, 7):
+		# 		self.flock.add_element(utils.grid_to_px((x, y)))
+		self.temp_message.add(utils.TempMessage(
+			pos=(6, 4.5),
+			text="Add entities and get steering !",
+			font=params.H3_FONT)
+		)
 		self.to_update = pygame.sprite.Group(
 			self.flock,
 			utils.ToggleButton(
 				pos=(0.2, 8),
-				text="Adding : ",
+				text="Entity : ",
 				labels=self.flock.kinds,
 				init_label=self.flock.add_kind,
-				action=lambda: self.flock.switch_element())
+				action=lambda: self.flock.switch_element()),
+			utils.ToggleButton(
+				pos=(0.2, 8.5),
+				text="ADD ENTITY",
+				action=lambda: self.add_element(params.SCREEN_CENTER)),
 		)
 		# add behaviour toggle buttons
 		for k, behaviour in enumerate(self.flock.behaviours):
@@ -76,9 +95,11 @@ class Simulation:
 		key_to_function = {
 			pygame.K_ESCAPE: lambda self, event: setattr(self, "running", False),
 		}
+		button_to_function = {
+			3: lambda self, event: self.add_element(event.pos),
+		}
 		self.init_run()
-		kt = 0
-		avg_t = 0
+		dt = 0
 		while self.running:
 			self.clock.tick(params.FPS)
 			t = time()
@@ -92,19 +113,19 @@ class Simulation:
 					key_to_function[event.key](self, event)
 				elif event.type == pygame.MOUSEBUTTONDOWN:
 					click_event = event
+					if event.button in button_to_function:
+						button_to_function[event.button](self, event)
 				elif event.type == pygame.MOUSEMOTION:
 					motion_event = event
 			self.update(motion_event, click_event)
+			self.fps_message.update(dt)
+			self.temp_message.update(motion_event, click_event)
 			self.display()
-			t1 = time()
+			self.fps_message.display(self.screen)
+			if self.temp_message:
+				self.temp_message.sprite.display(self.screen)
 			pygame.display.flip()
-			print("Flip: {}".format(1000*(time()-t1)))
-			avg_t += time() - t
-			kt += 1
-			if kt == 5:
-				avg_t /= 5
-				print("FPS : {}\n".format(1/avg_t))
-				avg_t = kt = 0
+			dt = time() - t
 
 	def quit(self):
 		self.running = False

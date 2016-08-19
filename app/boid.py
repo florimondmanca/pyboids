@@ -16,7 +16,7 @@ class Boid(pygame.sprite.Sprite):
 		self.vel = vel if vel is not None else np.zeros(2)
 		self.rect.center = self._pos
 		self.steering = np.zeros(2)
-		self.mass = 10
+		self.mass = 20
 		self.wandering_angle = np.pi*(2*np.random.rand() - 1)
 
 	def get_pos(self):
@@ -30,10 +30,13 @@ class Boid(pygame.sprite.Sprite):
 		self.image = pygame.transform.rotate(self.base_image, -np.rad2deg(np.angle(self.vel[0] + 1j*self.vel[1])))
 		self.rect = self.image.get_rect(center=self.rect.center)
 
-	def steer(self, force):
+	def steer(self, force, alt_max=None):
 		""" Adds a force to the current steering force """
 		# limit the steering each time we add a force
-		self.steering += utils.truncate(force/self.mass, params.BOID_MAX_FORCE)
+		if alt_max is not None:
+			self.steering += utils.truncate(force/self.mass, alt_max)
+		else:
+			self.steering += utils.truncate(force/self.mass, params.BOID_MAX_FORCE)
 
 	def dist(self, other):
 		if other is None:
