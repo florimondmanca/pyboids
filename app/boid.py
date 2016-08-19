@@ -67,7 +67,7 @@ class Boid(pygame.sprite.Sprite):
 		screen.blit(self.image, self.rect)
 		if params.DEBUG:
 			pygame.draw.line(screen, pygame.Color("red"),
-				tuple(self.pos), tuple(self.pos + 4*self.vel))
+				tuple(self.pos), tuple(self.pos + 2*self.vel))
 			pygame.draw.line(screen, pygame.Color("blue"), tuple(self.pos), tuple(self.pos + 30*self.steering))
 		self.steering = np.zeros(2)
 

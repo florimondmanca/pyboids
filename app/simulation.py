@@ -22,7 +22,7 @@ class Simulation:
 		self.to_update = pygame.sprite.Group()
 		self.to_display = pygame.sprite.Group()
 		self.temp_message = pygame.sprite.GroupSingle()
-		self.fps_message = utils.FPSMessage(pos=(11, 0.2), text="FPS: ...")
+		self.fps_message = utils.FPSMessage(pos=(11, 0.5), text="FPS: ...")
 
 	def add_element(self, pos):
 		self.flock.add_element(pos)
@@ -35,6 +35,9 @@ class Simulation:
 
 	def toggle_behaviour(self, behaviour):
 		self.flock.behaviours[behaviour] = not self.flock.behaviours[behaviour]
+
+	def toggle_debug(self):
+		params.DEBUG = not params.DEBUG
 
 	def update(self, motion_event, click_event):
 		self.to_update.update(motion_event, click_event)
@@ -72,6 +75,12 @@ class Simulation:
 				pos=(0.2, 8.5),
 				text="ADD ENTITY",
 				action=lambda: self.add_element(params.SCREEN_CENTER)),
+			utils.ToggleButton(
+				pos=(8.5, 8.5),
+				text="Show forces, velocities and frame: ",
+				labels="Yes No".split(),
+				init_label="No Yes".split()[params.DEBUG],
+				action=lambda: self.toggle_debug()),
 		)
 		# add behaviour toggle buttons
 		for k, behaviour in enumerate(self.flock.behaviours):
@@ -81,8 +90,8 @@ class Simulation:
 			do_action = actionize(do_action, self, behaviour)
 			# ^
 			self.to_update.add(utils.ToggleButton(
-				pos=(0.2, 0.3*(1+k)),
-				text="{} : ".format(behaviour.title()),
+				pos=(0.2, 0.2+0.3*(1+k)),
+				text="{}: ".format(behaviour.title()),
 				labels="off on".split(),
 				init_label="off on".split()[self.flock.behaviours[behaviour]],
 				action=do_action)

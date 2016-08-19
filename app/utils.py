@@ -102,10 +102,10 @@ class TempMessage(Message):
 
 class FPSMessage(Message):
     """
-    FPSMessage(pos, text="", font=params.BODY_FONT, n_frames=20) -> FPSMessage
+    FPSMessage(pos, text="", font=params.BODY_FONT, n_frames=40) -> FPSMessage
     A message that displays the FPS. Updates every 'n_frames' frames.
     """
-    def __init__(self, pos, text="", font=params.BODY_FONT, n_frames=20):
+    def __init__(self, pos, text="", font=params.BODY_FONT, n_frames=40):
         Message.__init__(self, pos, text, font)
         self.n_frames = n_frames
         self.counter = 0

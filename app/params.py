@@ -10,7 +10,7 @@ pygame.init()
 pygame.freetype.init()
 
 # General parameters
-DEBUG = True
+DEBUG = False
 TITLE = "PyBoids"
 SUBTITLE = "An implementation of steering behaviours."
 CAPTION = "PyBoids - Steering Behaviour Simulator"
