@@ -13,6 +13,7 @@ class Obstacle(pygame.sprite.Sprite):
 		self.image, self.rect = utils.load_image("obstacle-circle.png")
 		self.image = pygame.transform.smoothscale(self.image, (2*radius, 2*radius))
 		self.pos = pos if pos is not None else np.zeros(2)
+		self.radius = radius
 		self.rect = self.image.get_rect(center=self.pos)
 
 	def display(self, screen):

@@ -5,6 +5,7 @@
 import pygame
 from .flock import Flock
 from . import params, utils
+from time import time
 
 def actionize(func, self, behaviour):
 	def actionized():
@@ -30,6 +31,13 @@ class Simulation:
 	def display(self):
 		for sprite in self.to_display:
 			sprite.display(self.screen)
+		if params.DEBUG:
+			pygame.draw.polygon(self.screen, pygame.Color("turquoise"), [
+					(params.BOX_MARGIN, params.BOX_MARGIN),
+					(params.SCREEN_WIDTH - params.BOX_MARGIN, params.BOX_MARGIN),
+					(params.SCREEN_WIDTH - params.BOX_MARGIN, params.SCREEN_HEIGHT - params.BOX_MARGIN),
+					(params.BOX_MARGIN, params.SCREEN_HEIGHT - params.BOX_MARGIN),
+				], 1)
 
 	def init_run(self):
 		self.to_update = pygame.sprite.Group(
@@ -51,7 +59,7 @@ class Simulation:
 			self.to_update.add(utils.ToggleButton(
 				pos=(0.2, 0.3*(1+k)),
 				text="{} : ".format(behaviour.title()),
-				labels="on off".split(),
+				labels="off on".split(),
 				init_label="off on".split()[self.flock.behaviours[behaviour]],
 				action=do_action)
 			)
@@ -66,6 +74,7 @@ class Simulation:
 		self.init_run()
 		while self.running:
 			self.clock.tick(params.FPS)
+			t = time()
 			motion_event, click_event = None, None
 			self.screen.fill(params.SIMULATION_BACKGROUND)
 			for event in pygame.event.get():
@@ -81,6 +90,7 @@ class Simulation:
 			self.update(motion_event, click_event)
 			self.display()
 			pygame.display.flip()
+			print("FPS :", 1/(time()-t))
 
 	def quit(self):
 		self.running = False

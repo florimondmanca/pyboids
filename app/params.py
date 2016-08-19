@@ -10,7 +10,7 @@ pygame.init()
 pygame.freetype.init()
 
 # General parameters
-DEBUG = True
+DEBUG = False
 TITLE = "PYBOIDS"
 SUBTITLE = "An implementation of Boids algorithm in Python."
 CAPTION = "PyBoids - Flocking Behaviour Simulator"
@@ -51,22 +51,29 @@ H4_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h4"])
 H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
 
 # Boid staying inside the screen box
-BOX_MARGIN = 150  # pixels
+BOX_MARGIN = 100  # pixels
 STEER_INSIDE = 0.8  # speed impulse when out of margins
 # Boid steering parameters
-BOID_MAX_FORCE = 1.
-BOID_MAX_SPEED = 10.
+BOID_MAX_FORCE = .5
+BOID_MAX_SPEED = 8.
 # Boid seek parameters
 R_SEEK = 100
 # Boid flee parameters
 R_FLEE = 300
 # Boid wandering parameters
-WANDER_DIST = 1
-WANDER_RADIUS = 0.5
+WANDER_DIST = 0.5
+WANDER_RADIUS = 0.2
 WANDER_ANGLE = 0.2
-
+# Boid obstacle avoidance parameters
+MAX_SEE_AHEAD = 100  # pixels
+MAX_AVOID_FORCE = 1.
+# Boid separation parameters
+SEPARATION_RADIUS = 40
+MAX_SEPARATION_FORCE = 1
+# Leader following parameters
+LEADER_BEHIND_DIST = 50  # pixels
 # Obstacles parameters
-OBSTACLE_DEFAULT_RADIUS = 30
+OBSTACLE_DEFAULT_RADIUS = 60
 OBSTACLE_COLOR = pygame.Color("dark slate gray")
 
 # multi-threading parameters

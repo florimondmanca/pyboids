@@ -127,6 +127,7 @@ class ToggleButton(Button):
         self.labels = labels  # list of strings
         self.label = init_label.replace("-", " ").title()
         super().__init__(pos, text=text + self.label, font=font, action=action)
+        self.labels = np.roll(labels, -labels.index(init_label))
         self.rect.midleft = grid_to_px(pos)
 
     def toggle(self):
