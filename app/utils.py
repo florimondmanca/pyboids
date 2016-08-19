@@ -5,6 +5,8 @@
 import os
 import pygame
 import numpy as np
+import math
+from numpy.core.umath_tests import inner1d
 from . import params
 
 
@@ -32,20 +34,20 @@ def grid_to_px(grid_pos):
     """ Converts grid position to pixel position """
     return grid_pos[0] * params.COL, grid_pos[1] * params.ROW
 
-def norm(vector):
-    return np.sqrt(np.dot(vector, vector))
+def norm(vector):  # must be as fast as possible
+    return math.sqrt(vector[0]**2 + vector[1]**2)
 
-def normalize(vector):
-    n = norm(vector)
+def normalize(vector, pre_n=None):
+    n = pre_n if pre_n is not None else norm(vector)
     if n < 1e-13:
         return np.zeros(2)
     else:
         return np.array(vector) / n
 
 def truncate(vector, max_norm):
-    n = np.sqrt(np.dot(vector, vector))
+    n = norm(vector)
     if n > max_norm:
-        return normalize(vector) * max_norm
+        return normalize(vector, pre_n=n) * max_norm
     else:
         return vector
 

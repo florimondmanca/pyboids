@@ -40,6 +40,11 @@ class Simulation:
 				], 1)
 
 	def init_run(self):
+		# add 40 boids to the flock
+		for x in range(1, 11):
+			for y in range(3, 7):
+				self.flock.add_element(utils.grid_to_px((x, y)))
+
 		self.to_update = pygame.sprite.Group(
 			self.flock,
 			utils.ToggleButton(
@@ -72,6 +77,8 @@ class Simulation:
 			pygame.K_ESCAPE: lambda self, event: setattr(self, "running", False),
 		}
 		self.init_run()
+		kt = 0
+		avg_t = 0
 		while self.running:
 			self.clock.tick(params.FPS)
 			t = time()
@@ -90,7 +97,12 @@ class Simulation:
 			self.update(motion_event, click_event)
 			self.display()
 			pygame.display.flip()
-			print("FPS :", 1/(time()-t))
+			avg_t += time() - t
+			kt += 1
+			if kt == 5:
+				avg_t /= 5
+				print("FPS :", 1/avg_t)
+				avg_t = kt = 0
 
 	def quit(self):
 		self.running = False

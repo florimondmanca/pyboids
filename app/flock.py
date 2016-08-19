@@ -131,7 +131,7 @@ class Flock(pygame.sprite.Sprite):
 		n_neighbors = 0
 		force = np.zeros(2)
 		for other_boid in self.normal_boids:
-			if other_boid != boid and boid.dist(other_boid) <= params.SEPARATION_RADIUS:
+			if other_boid != boid and pygame.sprite.collide_rect(boid, other_boid):
 				force -= other_boid.pos - boid.pos
 				n_neighbors += 1
 		if n_neighbors:
@@ -146,7 +146,7 @@ class Flock(pygame.sprite.Sprite):
 		for boid in self.normal_boids:
 			self.seek_single(behind, boid)
 			self.separate_single(boid)
-			self.escape_single(ahead, leader.vel, boid)
+			self.escape_single(boid.pos, leader.vel, boid)
 
 	def parallel_update_boids(self, q):
 		while not q.empty():

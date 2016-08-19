@@ -54,8 +54,8 @@ H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
 BOX_MARGIN = 100  # pixels
 STEER_INSIDE = 0.8  # speed impulse when out of margins
 # Boid steering parameters
-BOID_MAX_FORCE = .5
-BOID_MAX_SPEED = 8.
+BOID_MAX_FORCE = 0.8
+BOID_MAX_SPEED = 7.
 # Boid seek parameters
 R_SEEK = 100
 # Boid flee parameters
@@ -65,15 +65,14 @@ WANDER_DIST = 0.5
 WANDER_RADIUS = 0.2
 WANDER_ANGLE = 0.2
 # Boid obstacle avoidance parameters
-MAX_SEE_AHEAD = 100  # pixels
+MAX_SEE_AHEAD = 200  # pixels
 MAX_AVOID_FORCE = 1.
 # Boid separation parameters
-SEPARATION_RADIUS = 40
-MAX_SEPARATION_FORCE = 1
+MAX_SEPARATION_FORCE = 1.2
 # Leader following parameters
-LEADER_BEHIND_DIST = 50  # pixels
+LEADER_BEHIND_DIST = 30  # pixels
 # Obstacles parameters
-OBSTACLE_DEFAULT_RADIUS = 60
+OBSTACLE_DEFAULT_RADIUS = 20
 OBSTACLE_COLOR = pygame.Color("dark slate gray")
 
 # multi-threading parameters

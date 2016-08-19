@@ -33,16 +33,16 @@ class Boid(pygame.sprite.Sprite):
 	def steer(self, force):
 		""" Adds a force to the current steering force """
 		# limit the steering each time we add a force
-		self.steering += utils.truncate(force/self.mass, 2*params.BOID_MAX_FORCE)
+		self.steering += utils.truncate(force/self.mass, params.BOID_MAX_FORCE)
 
 	def dist(self, other):
 		if other is None:
 			return float("inf")
 		else:
-			return np.sqrt(np.dot(self.pos - other.pos, self.pos - other.pos))
+			return utils.norm(self.pos - other.pos)
 
 	def dist_pos(self, pos):
-		return np.sqrt(np.dot(self.pos - pos, self.pos - pos))
+		return utils.norm(self.pos - pos)
 
 	def update(self):
 		# limit the velocity
@@ -57,7 +57,7 @@ class Boid(pygame.sprite.Sprite):
 		if params.DEBUG:
 			pygame.draw.line(screen, pygame.Color("red"),
 				tuple(self.pos), tuple(self.pos + 4*self.vel))
-			pygame.draw.line(screen, pygame.Color("blue"), tuple(self.pos), tuple(self.pos + 20*self.steering))
+			pygame.draw.line(screen, pygame.Color("blue"), tuple(self.pos), tuple(self.pos + 30*self.steering))
 		self.steering = np.zeros(2)
 
 
