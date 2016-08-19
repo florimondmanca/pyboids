@@ -9,6 +9,7 @@ import threading, queue
 from . import params, utils
 from . import boid
 from .obstacle import Obstacle
+from time import time
 
 class Flock(pygame.sprite.Sprite):
 	"""
@@ -22,11 +23,11 @@ class Flock(pygame.sprite.Sprite):
 		self.boids = pygame.sprite.Group()
 		self.obstacles = pygame.sprite.Group()
 		self.behaviours = {
-			"pursue": False,
-			"escape": False,
+			"pursue": True,
+			"escape": True,
 			"wander": True,
 			"avoid collision": True,
-			"follow leader": False,
+			"follow leader": True,
 		}
 		self.kinds = ["normal-boid", "leader-boid", "obstacle"]
 		self.add_kind = "normal-boid"
@@ -63,7 +64,7 @@ class Flock(pygame.sprite.Sprite):
 
 	def seek_single(self, target_pos, boid):
 		d = boid.dist_pos(target_pos)
-		boid.steer(utils.normalize(target_pos - boid.pos) * params.BOID_MAX_SPEED * (d / params.R_SEEK if d < params.R_SEEK else 1) - boid.vel)
+		boid.steer(utils.normalize(target_pos - boid.pos) * params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1) - boid.vel)
 
 	def seek(self, target_boid):
 		""" Makes all normal boids seek to go to a target. """
@@ -71,7 +72,7 @@ class Flock(pygame.sprite.Sprite):
 			self.seek_single(target_boid, boid)
 
 	def flee_single(self, target_pos, boid):
-		if boid.dist_pos(target_pos) < params.R_FLEE:
+		if boid.dist_pos2(target_pos) < params.R_FLEE*params.R_FLEE:
 				boid.steer(utils.normalize(boid.pos - target_pos) * params.BOID_MAX_SPEED - boid.vel)
 
 	def flee(self, target_boid):
@@ -101,20 +102,23 @@ class Flock(pygame.sprite.Sprite):
 
 	def wander(self):
 		""" Makes all boids wander around randomly. """
-		for boid in self.boids:
+		rands = 2*np.random.rand(len(self.boids)) - 1
+		cos = np.cos([b.wandering_angle for b in self.boids])
+		sin = np.sin([b.wandering_angle for b in self.boids])
+		for i, boid in enumerate(self.boids):
 			nvel = utils.normalize(boid.vel)
 			# calculate circle center
 			circle_center = nvel * params.WANDER_DIST
 			# calculate displacement force
-			c, s = np.cos(boid.wandering_angle), np.sin(boid.wandering_angle)
+			c, s = cos[i], sin[i]
 			displacement = np.dot(np.array([[c, -s], [s, c]]), nvel * params.WANDER_RADIUS)
 			boid.steer(circle_center + displacement)
-			boid.wandering_angle += params.WANDER_ANGLE * (2*np.random.rand() - 1)
+			boid.wandering_angle += params.WANDER_ANGLE * rands[i]
 
 	def find_most_threatening_obstacle(self, boid, aheads):
 		most_threatening = None
 		for obstacle in self.obstacles:
-			if any(utils.norm(obstacle.pos - ahead) <= obstacle.radius for ahead in aheads) and (most_threatening is None or boid.dist(obstacle) < boid.dist(most_threatening)):
+			if any(utils.norm2(obstacle.pos - ahead) <= obstacle.radius*obstacle.radius for ahead in aheads) and (most_threatening is None or boid.dist2(obstacle) < boid.dist2(most_threatening)):
 				most_threatening = obstacle
 		return most_threatening
 
@@ -140,13 +144,17 @@ class Flock(pygame.sprite.Sprite):
 
 	def follow_leader(self, leader):
 		""" Makes all normal boids follow a leader, staying at a certain distance from it, moving away when they're in the leader's path, and avoiding cluttering of boids behind the leader. """
-		nvel = utils.normalize(leader.vel) * params.LEADER_BEHIND_DIST
-		behind = leader.pos - nvel
-		ahead = leader.pos + nvel
+		nvel = utils.normalize(leader.vel)
+		behind = leader.pos - nvel * params.LEADER_BEHIND_DIST
+		ahead = leader.pos + nvel * params.LEADER_AHEAD_DIST
+		total = 0
 		for boid in self.normal_boids:
 			self.seek_single(behind, boid)
+			t = time()
 			self.separate_single(boid)
-			self.escape_single(boid.pos, leader.vel, boid)
+			total += time() - t
+			self.escape_single(ahead, leader.vel, boid)
+		print("    Separate: {}".format(total*1000))
 
 	def parallel_update_boids(self, q):
 		while not q.empty():
@@ -165,23 +173,48 @@ class Flock(pygame.sprite.Sprite):
 		if click_event and click_event.button == 3:
 			self.add_element(click_event.pos)
 		# apply steering effets using multithreading
-		func_q = queue.Queue()
+		# func_q = queue.Queue()
+		# if self.leader_boid:
+		# 	target = self.leader_boid.sprite
+		# 	if self.behaviours["pursue"]:
+		# 		func_q.put((self.pursue, [target]))
+		# 	if self.behaviours["escape"]:
+		# 		func_q.put((self.escape, [target]))
+		# 	if self.behaviours["follow leader"]:
+		# 		func_q.put((self.follow_leader, [target]))
+		# if self.behaviours["wander"]:
+		# 	func_q.put((self.wander, []))
+		# if self.behaviours["avoid collision"]:
+		# 	func_q.put((self.avoid_collision, []))
+		# func_q.put((self.remain_in_screen, []))
+		# for i in range(params.N_CPU):
+		# 	threading.Thread(target=self.parallel_update_boids_func, args=[func_q]).start()
+		# func_q.join()
 		if self.leader_boid:
 			target = self.leader_boid.sprite
 			if self.behaviours["pursue"]:
-				func_q.put((self.pursue, [target]))
+				t = time()
+				self.pursue(target)
+				print("Pursue: {}".format(1000*(time()-t)))
 			if self.behaviours["escape"]:
-				func_q.put((self.escape, [target]))
+				t = time()
+				self.escape(target)
+				print("Escape: {}".format(1000*(time()-t)))
 			if self.behaviours["follow leader"]:
-				func_q.put((self.follow_leader, [target]))
+				t = time()
+				self.follow_leader(target)
+				print("Follow leader: {}".format(1000*(time()-t)))
 		if self.behaviours["wander"]:
-			func_q.put((self.wander, []))
+			t = time()
+			self.wander()
+			print("Wander: {}".format(1000*(time()-t)))
 		if self.behaviours["avoid collision"]:
-			func_q.put((self.avoid_collision, []))
-		func_q.put((self.remain_in_screen, []))
-		for i in range(params.N_CPU):
-			threading.Thread(target=self.parallel_update_boids_func, args=[func_q]).start()
-		func_q.join()
+			t = time()
+			self.avoid_collision()
+			print("Avoid collision: {}".format(1000*(time()-t)))
+		t = time()
+		self.remain_in_screen()
+		print("Remain: {}".format(1000*(time()-t)))
 		# update all boids using multithreading
 		q = queue.Queue()
 		for boid in self.boids:

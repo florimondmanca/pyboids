@@ -96,12 +96,14 @@ class Simulation:
 					motion_event = event
 			self.update(motion_event, click_event)
 			self.display()
+			t1 = time()
 			pygame.display.flip()
+			print("Flip: {}".format(1000*(time()-t1)))
 			avg_t += time() - t
 			kt += 1
 			if kt == 5:
 				avg_t /= 5
-				print("FPS :", 1/avg_t)
+				print("FPS : {}\n".format(1/avg_t))
 				avg_t = kt = 0
 
 	def quit(self):

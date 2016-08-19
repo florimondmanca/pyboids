@@ -16,7 +16,7 @@ class Boid(pygame.sprite.Sprite):
 		self.vel = vel if vel is not None else np.zeros(2)
 		self.rect.center = self._pos
 		self.steering = np.zeros(2)
-		self.mass = 1
+		self.mass = 10
 		self.wandering_angle = np.pi*(2*np.random.rand() - 1)
 
 	def get_pos(self):
@@ -40,9 +40,17 @@ class Boid(pygame.sprite.Sprite):
 			return float("inf")
 		else:
 			return utils.norm(self.pos - other.pos)
+	def dist2(self, other):
+		if other is None:
+			return float("inf")
+		else:
+			return utils.norm2(self.pos - other.pos)
 
 	def dist_pos(self, pos):
 		return utils.norm(self.pos - pos)
+
+	def dist_pos2(self, pos):
+		return utils.norm2(self.pos - pos)
 
 	def update(self):
 		# limit the velocity

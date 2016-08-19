@@ -37,6 +37,9 @@ def grid_to_px(grid_pos):
 def norm(vector):  # must be as fast as possible
     return math.sqrt(vector[0]**2 + vector[1]**2)
 
+def norm2(vector):  # square norm
+    return vector[0]*vector[0] + vector[1]*vector[1]
+
 def normalize(vector, pre_n=None):
     n = pre_n if pre_n is not None else norm(vector)
     if n < 1e-13:
