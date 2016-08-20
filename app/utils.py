@@ -10,7 +10,7 @@ from numpy.core.umath_tests import inner1d
 from . import params
 
 
-def load_image(*path):
+def load_image_only(*path):
     """
     Loads the image using the full path to the image.
     Manages alpha conversion (e.g. png's).
@@ -20,6 +20,13 @@ def load_image(*path):
         image = image.convert()
     else:
         image = image.convert_alpha()
+    return image
+
+def load_image(*path):
+    """
+    Loads the image using the full path to the image and also returns the image's rect.
+    """
+    image = load_image_only(*path)
     return image, image.get_rect()
 
 def mktext(text, font):

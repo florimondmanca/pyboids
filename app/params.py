@@ -11,8 +11,6 @@ pygame.freetype.init()
 
 # General parameters
 DEBUG = False
-TITLE = "PyBoids"
-SUBTITLE = "An implementation of steering behaviours."
 CAPTION = "PyBoids - Steering Behaviour Simulator"
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 IMG_DIR = os.path.join(BASE_DIR, *["static", "img"])
@@ -36,20 +34,20 @@ FONTS = {
 	"quicksand-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Light.otf"])),
 }
 FONT_SIZES = {
-	"body": 14,
+	"body": 17,
 	"h1": 128,
 	"h2": 48,
 	"h3": 32,
-	"h4": 24,
-	"h5": 18,
+	"h4": 28,
+	"h5": 24,
 }
 FONT_COLOR = pygame.Color("white")
-BODY_FONT = (FONTS["quicksand"], FONT_SIZES["body"], )
-H1_FONT = (FONTS["hallo-sans-light"], FONT_SIZES["h1"])
+BODY_FONT = (FONTS["hallo-sans"], FONT_SIZES["body"], )
+H1_FONT = (FONTS["quicksand-light"], FONT_SIZES["h1"])
 H2_FONT = (FONTS["hallo-sans"], FONT_SIZES["h2"])
-H3_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h3"])
-H4_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h4"])
-H5_FONT = (FONTS["quicksand-bold"], FONT_SIZES["h5"])
+H3_FONT = (FONTS["quicksand"], FONT_SIZES["h3"])
+H4_FONT = (FONTS["hallo-sans"], FONT_SIZES["h4"])
+H5_FONT = (FONTS["hallo-sans"], FONT_SIZES["h5"])
 
 # Boid staying inside the screen box
 BOX_MARGIN = 200  # pixels
