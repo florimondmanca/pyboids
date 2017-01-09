@@ -6,7 +6,6 @@ import os
 import pygame
 import numpy as np
 import math
-from numpy.core.umath_tests import inner1d
 from . import params
 
 
@@ -22,30 +21,39 @@ def load_image_only(*path):
         image = image.convert_alpha()
     return image
 
+
 def load_image(*path):
     """
-    Loads the image using the full path to the image and also returns the image's rect.
+    Loads the image using the full path to the image and also
+    returns the image's rect.
     """
     image = load_image_only(*path)
     return image, image.get_rect()
 
+
 def mktext(text, font):
-    """ Renders a text of given 'text' and font (a tuple (pygame.freetype.Font, size)) """
+    """ Renders a text of given 'text' and font
+    (a tuple (pygame.freetype.Font, size)) """
     return font[0].render(text, fgcolor=params.FONT_COLOR, size=font[1])
+
 
 def px_to_grid(px_pos):
     """ Converts pixel position to grid position """
     return px_pos[0] / params.COL, px_pos[1] / params.ROW
 
+
 def grid_to_px(grid_pos):
     """ Converts grid position to pixel position """
     return grid_pos[0] * params.COL, grid_pos[1] * params.ROW
 
+
 def norm(vector):  # must be as fast as possible
     return math.sqrt(vector[0]**2 + vector[1]**2)
 
+
 def norm2(vector):  # square norm
-    return vector[0]*vector[0] + vector[1]*vector[1]
+    return vector[0] * vector[0] + vector[1] * vector[1]
+
 
 def normalize(vector, pre_n=None):
     n = pre_n if pre_n is not None else norm(vector)
@@ -53,6 +61,7 @@ def normalize(vector, pre_n=None):
         return np.zeros(2)
     else:
         return np.array(vector) / n
+
 
 def truncate(vector, max_norm):
     n = norm(vector)
@@ -66,7 +75,8 @@ class Message(pygame.sprite.Sprite):
     """
     Message(pos, text="", font=params.BODY_FONT) -> Message
     A simple text sprite.
-    pos is (col, row) with col a float from 0.0 to 12.0 and row a float from 0.0 to 9.0
+    pos is (col, row) with col a float from 0.0 to 12.0 and row a
+    float from 0.0 to 9.0
     """
     image = None  # Surface
     rect = None  # Rect
@@ -80,6 +90,7 @@ class Message(pygame.sprite.Sprite):
 
     def get_text(self):
         return self._text
+
     def set_text(self, text):
         self._text = text
         self.image, rect = mktext(text, self.font)
@@ -94,7 +105,8 @@ class Message(pygame.sprite.Sprite):
 class TempMessage(Message):
     """
     TempMessage(pos, text="", font=params.H4_FONT, duration=100) -> TempMessage
-    A message that only displays for a certain amount of time (duration given in number of frames - default is 150 frames).
+    A message that only displays for a certain amount of time
+    (duration given in number of frames - default is 150 frames).
     """
     def __init__(self, pos, text="", font=params.H4_FONT, duration=100):
         super().__init__(pos, text, font)
@@ -123,7 +135,7 @@ class FPSMessage(Message):
         self.time += time
         if self.counter == self.n_frames:
             self.time /= self.n_frames
-            self.text = "FPS: {}".format(round(1/self.time, 1))
+            self.text = "FPS: {}".format(round(1 / self.time, 1))
             self.counter = 0
             self.time = 0
 
@@ -132,7 +144,8 @@ class Button(Message):
     """
     Button(pos, text="", font=params.BODY_FONT, action=None) -> Rect
     Derives from Message.
-    A text button sprite that underlines itself under hover. It can be associated with an action that is triggered by click.
+    A text button sprite that underlines itself under hover.
+    It can be associated with an action that is triggered by click.
     """
     def __init__(self, pos, text="", font=params.BODY_FONT, action=None):
         super().__init__(pos, text, font)
@@ -151,8 +164,8 @@ class Button(Message):
     def display(self, screen):
         super().display(screen)
         if self.action and self.hover:
-            pygame.draw.line(screen,
-                params.FONT_COLOR,
+            pygame.draw.line(
+                screen, params.FONT_COLOR,
                 (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5),
                 (self.rect.bottomright[0], self.rect.bottomright[1] + 5)
             )
@@ -160,11 +173,14 @@ class Button(Message):
 
 class ToggleButton(Button):
     """
-    ToggleButton(pos, text="", font=params.BODY_FONT, action=None, labels=[""], init_label="") -> ToggleButton
+    ToggleButton(pos, text="", font=params.BODY_FONT,
+    action=None, labels=[""], init_label="") -> ToggleButton
     Derives from Button.
-    A button sprite which has a series of labels that gets updated on click. Each click changes the label in a circular manner.
+    A button sprite which has a series of labels that gets updated on click.
+    Each click changes the label in a circular manner.
     """
-    def __init__(self, pos, text="", font=params.BODY_FONT, action=None, labels="", init_label=""):
+    def __init__(self, pos, text="", font=params.BODY_FONT,
+                 action=None, labels="", init_label=""):
         self.phrase = text
         self.labels = labels  # list of strings
         self.label = init_label.replace("-", " ").title()

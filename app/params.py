@@ -19,27 +19,33 @@ FONTS_DIR = os.path.join(BASE_DIR, *["static", "fonts"])
 # Screen and viewing parameters
 SCREEN_HEIGHT, SCREEN_WIDTH = 720, 960
 SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
-SCREEN_CENTER = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
-COL = SCREEN_WIDTH//12
-ROW = SCREEN_HEIGHT//9
+SCREEN_CENTER = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+COL = SCREEN_WIDTH // 12
+ROW = SCREEN_HEIGHT // 9
 FPS = 30
 MENU_BACKGROUND = pygame.Color("slate gray")
 SIMULATION_BACKGROUND = pygame.Color("dark slate gray")
 FONTS = {
-	"hallo-sans-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
-	"hallo-sans-bold": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans black.otf"])),
-	"hallo-sans": pygame.freetype.Font(os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans.otf"])),
-	"quicksand": pygame.freetype.Font(os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Regular.otf"])),
-	"quicksand-bold": pygame.freetype.Font(os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Bold.otf"])),
-	"quicksand-light": pygame.freetype.Font(os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Light.otf"])),
+    "hallo-sans-light": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
+    "hallo-sans-bold": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans black.otf"])),
+    "hallo-sans": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans.otf"])),
+    "quicksand": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Regular.otf"])),
+    "quicksand-bold": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Bold.otf"])),
+    "quicksand-light": pygame.freetype.Font(
+        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Light.otf"])),
 }
 FONT_SIZES = {
-	"body": 17,
-	"h1": 128,
-	"h2": 48,
-	"h3": 32,
-	"h4": 28,
-	"h5": 24,
+    "body": 17,
+    "h1": 128,
+    "h2": 48,
+    "h3": 32,
+    "h4": 28,
+    "h5": 24,
 }
 FONT_COLOR = pygame.Color("white")
 BODY_FONT = (FONTS["hallo-sans"], FONT_SIZES["body"], )
