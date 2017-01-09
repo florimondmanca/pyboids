@@ -139,15 +139,15 @@ class Flock(pygame.sprite.Sprite):
     def avoid_collision(self):
         """ Avoids collisions between boids and obstacles. """
         for boid in self.boids:
-            ahead = boid.pos
-            ahead += boid.vel / params.BOID_MAX_SPEED * params.MAX_SEE_AHEAD
-            ahead2 = boid.pos
-            ahead2 += boid.vel / params.BOID_MAX_SPEED / \
-                2 * params.MAX_SEE_AHEAD
+            ahead = boid.pos + boid.vel / params.BOID_MAX_SPEED * \
+                params.MAX_SEE_AHEAD
+            ahead2 = boid.pos + boid.vel / params.BOID_MAX_SPEED / 2 * \
+                params.MAX_SEE_AHEAD
             most_threatening = self.find_most_threatening_obstacle(
                 boid, [ahead, ahead2, boid.pos])
             if most_threatening is not None:
                 steering = utils.normalize(ahead - most_threatening.pos)
+                print(steering)
                 steering *= params.MAX_AVOID_FORCE
                 boid.steer(steering)
 
