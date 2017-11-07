@@ -16,16 +16,16 @@ class Flock(pygame.sprite.Sprite):
         self.boids = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
         self.behaviours = {
-            "pursue": False,
-            "escape": False,
-            "wander": True,
-            "avoid collision": True,
-            "follow leader": False,
-            "align": False,
-            "separate": False,
+            'pursue': False,
+            'escape': False,
+            'wander': True,
+            'avoid collision': True,
+            'follow leader': False,
+            'align': False,
+            'separate': False,
         }
-        self.kinds = ["normal-boid", "leader-boid", "obstacle"]
-        self.add_kind = "normal-boid"
+        self.kinds = ['normal-boid', 'leader-boid', 'obstacle']
+        self.add_kind = 'normal-boid'
 
     def switch_element(self):
         self.kinds = np.roll(self.kinds, -1)
@@ -38,14 +38,14 @@ class Flock(pygame.sprite.Sprite):
         """
         angle = np.pi * (2 * np.random.rand() - 1)
         vel = params.BOID_MAX_SPEED * np.array([np.cos(angle), np.sin(angle)])
-        if self.add_kind == "normal-boid":
+        if self.add_kind == 'normal-boid':
             self.normal_boids.add(Boid(pos=np.array(pos), vel=vel))
             self.boids.add(self.normal_boids)
-        elif self.add_kind == "leader-boid":
+        elif self.add_kind == 'leader-boid':
             self.boids.remove(self.leader_boid)
             self.leader_boid.add(LeaderBoid(pos=np.array(pos), vel=vel))
             self.boids.add(self.leader_boid)
-        elif self.add_kind == "obstacle":
+        elif self.add_kind == 'obstacle':
             self.obstacles.add(Obstacle(pos=pos))
 
     def remain_in_screen(self):
@@ -61,9 +61,10 @@ class Flock(pygame.sprite.Sprite):
 
     def seek_single(self, target_pos, boid):
         d = utils.dist(boid.pos, target_pos)
-        steering = utils.normalize(target_pos - boid.pos)
-        steering *= params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1)
-        steering -= boid.vel
+        steering = (
+            utils.normalize(target_pos - boid.pos) *
+            params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1) -
+            boid.vel)
         boid.steer(steering, alt_max=params.BOID_MAX_FORCE / 50)
 
     def seek(self, target_boid):
@@ -72,10 +73,11 @@ class Flock(pygame.sprite.Sprite):
             self.seek_single(target_boid, boid)
 
     def flee_single(self, target_pos, boid):
-        if utils.dist2(boid.pos, target_pos) < params.R_FLEE * params.R_FLEE:
-            steering = utils.normalize(boid.pos - target_pos)
-            steering *= params.BOID_MAX_SPEED
-            steering -= boid.vel
+        too_close = utils.dist2(boid.pos, target_pos) < params.R_FLEE**2
+        if too_close:
+            steering = (utils.normalize(boid.pos - target_pos) *
+                        params.BOID_MAX_SPEED -
+                        boid.vel)
             boid.steer(steering, alt_max=params.BOID_MAX_FORCE / 10)
 
     def flee(self, target_boid):
@@ -150,16 +152,16 @@ class Flock(pygame.sprite.Sprite):
                 boid.steer(steering)
 
     def separate_single(self, boid):
-        n_neighbors = 0
+        number_of_neighbors = 0
         force = np.zeros(2)
         for other_boid in self.boids:
             if boid == other_boid:
                 continue
             elif pygame.sprite.collide_rect(boid, other_boid):
                 force -= other_boid.pos - boid.pos
-                n_neighbors += 1
-        if n_neighbors:
-            force /= n_neighbors
+                number_of_neighbors += 1
+        if number_of_neighbors:
+            force /= number_of_neighbors
         boid.steer(utils.normalize(force) * params.MAX_SEPARATION_FORCE)
 
     def separate(self):
@@ -196,12 +198,12 @@ class Flock(pygame.sprite.Sprite):
                     neighbors[i].append(j)
                     neighbors[j].append(i)
         for i, boid in enumerate(boids):
-            n_neighbors = len(neighbors[i])
-            if n_neighbors:
+            number_of_neighbors = len(neighbors[i])
+            if number_of_neighbors:
                 desired = np.zeros(2)
                 for j in neighbors[i]:
                     desired += boids[j].vel
-                boid.steer(desired / n_neighbors - boid.vel)
+                boid.steer(desired / number_of_neighbors - boid.vel)
 
     def flock(self):
         """Simulate flocking behaviour : alignment + separation + cohesion."""
@@ -213,14 +215,14 @@ class Flock(pygame.sprite.Sprite):
         # apply steering behaviours
         if self.leader_boid:
             target = self.leader_boid.sprite
-            self.behaviours["pursue"] and self.pursue(target)
-            self.behaviours["escape"] and self.escape(target)
-            self.behaviours["follow leader"] and self.follow_leader(target)
-        self.behaviours["wander"] and self.wander()
-        if self.behaviours["avoid collision"] and self.obstacles:
+            self.behaviours['pursue'] and self.pursue(target)
+            self.behaviours['escape'] and self.escape(target)
+            self.behaviours['follow leader'] and self.follow_leader(target)
+        self.behaviours['wander'] and self.wander()
+        if self.behaviours['avoid collision'] and self.obstacles:
             self.avoid_collision()
-        self.behaviours["align"] and self.align()
-        self.behaviours["separate"] and self.separate()
+        self.behaviours['align'] and self.align()
+        self.behaviours['separate'] and self.separate()
         self.remain_in_screen()
         # update all boids
         for boid in self.boids:

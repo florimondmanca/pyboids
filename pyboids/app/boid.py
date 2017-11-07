@@ -40,10 +40,14 @@ class Boid(pygame.sprite.Sprite):
         self._pos = pos
         self.rect.center = tuple(pos)
 
-    def rotate(self):
-        angle = -np.rad2deg(np.angle(self.vel[0] + 1j * self.vel[1]))
-        self.image = pygame.transform.rotate(self.base_image, angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
+    @property
+    def vel(self):
+        return self._vel
+
+    @vel.setter
+    def vel(self, vel):
+        self._vel = vel
+        self._rotate_image()
 
     def steer(self, force, alt_max=None):
         """Add a force to the current steering force."""
@@ -54,11 +58,16 @@ class Boid(pygame.sprite.Sprite):
             self.steering += utils.truncate(
                 force / self.mass, params.BOID_MAX_FORCE)
 
+    def _rotate_image(self):
+        """Rotate base image using the velocity and assign to image."""
+        angle = -np.rad2deg(np.angle(self.vel[0] + 1j * self.vel[1]))
+        self.image = pygame.transform.rotate(self.base_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
     def update(self):
         self.vel = utils.truncate(
             self.vel + self.steering, params.BOID_MAX_SPEED)
-        self.pos = self._pos + self.vel
-        self.rotate()
+        self.pos = self.pos + self.vel
 
     def display(self, screen, debug=False):
         screen.blit(self.image, self.rect)
