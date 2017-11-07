@@ -12,7 +12,7 @@ def mktext(text, font):
     Parameters
     ----------
     text : str
-    font : tuple (pygame.font.Font, size)
+    font : tuple (font object, size)
     """
     return font[0].render(text, fgcolor=params.FONT_COLOR, size=font[1])
 
@@ -26,7 +26,7 @@ class Message(pygame.sprite.Sprite):
     ----------
     pos : (float, float)
     text : str
-    font : (pygame.font.Font, size)
+    font : (font object, size)
         Default is BODY_FONT.
     """
 
@@ -63,7 +63,7 @@ class TempMessage(Message):
     ----------
     pos : (float, float)
     text : str
-    font : (pygame.font.Font, size), optional
+    font : (font object, size), optional
         Default is H4_FONT.
     duration : int, optional
         Number of frames. Default is 100.

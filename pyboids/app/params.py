@@ -3,12 +3,13 @@ import os
 import pygame
 import pygame.freetype
 import pygame.gfxdraw
+from . import assets
+
 pygame.init()
-pygame.freetype.init()
 
 # General parameters
 DEBUG = False
-CAPTION = "PyBoids - Steering Behaviour Simulator"
+CAPTION = 'PyBoids - Steering Behaviour Simulator'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG_DIR = os.path.join(BASE_DIR, 'assets', 'img')
 FONTS_DIR = os.path.join(BASE_DIR, 'assets', 'fonts')
@@ -20,37 +21,31 @@ SCREEN_CENTER = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 COL = SCREEN_WIDTH // 12
 ROW = SCREEN_HEIGHT // 9
 FPS = 30
-MENU_BACKGROUND = pygame.Color("slate gray")
-SIMULATION_BACKGROUND = pygame.Color("dark slate gray")
+MENU_BACKGROUND = pygame.Color('slate gray')
+SIMULATION_BACKGROUND = pygame.Color('dark slate gray')
 FONTS = {
-    "hallo-sans-light": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans light.otf"])),
-    "hallo-sans-bold": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans black.otf"])),
-    "hallo-sans": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["hallo-sans", "Hallo sans.otf"])),
-    "quicksand": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Regular.otf"])),
-    "quicksand-bold": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Bold.otf"])),
-    "quicksand-light": pygame.freetype.Font(
-        os.path.join(FONTS_DIR, *["quicksand", "Quicksand-Light.otf"])),
+    'hallo-sans-light': assets.freetype('hallo-sans-light.otf'),
+    'hallo-sans-bold': assets.freetype('hallo-sans-bold.otf'),
+    'hallo-sans': assets.freetype('hallo-sans.otf'),
+    'quicksand': assets.freetype('quicksand.otf'),
+    'quicksand-bold': assets.freetype('quicksand-bold.otf'),
+    'quicksand-light': assets.freetype('quicksand-light.otf'),
 }
 FONT_SIZES = {
-    "body": 17,
-    "h1": 128,
-    "h2": 48,
-    "h3": 32,
-    "h4": 28,
-    "h5": 24,
+    'body': 17,
+    'h1': 128,
+    'h2': 48,
+    'h3': 32,
+    'h4': 28,
+    'h5': 24,
 }
-FONT_COLOR = pygame.Color("white")
-BODY_FONT = (FONTS["hallo-sans"], FONT_SIZES["body"], )
-H1_FONT = (FONTS["quicksand-light"], FONT_SIZES["h1"])
-H2_FONT = (FONTS["hallo-sans"], FONT_SIZES["h2"])
-H3_FONT = (FONTS["quicksand"], FONT_SIZES["h3"])
-H4_FONT = (FONTS["hallo-sans"], FONT_SIZES["h4"])
-H5_FONT = (FONTS["hallo-sans"], FONT_SIZES["h5"])
+FONT_COLOR = pygame.Color('white')
+BODY_FONT = (FONTS['hallo-sans'], FONT_SIZES['body'], )
+H1_FONT = (FONTS['quicksand-light'], FONT_SIZES['h1'])
+H2_FONT = (FONTS['hallo-sans'], FONT_SIZES['h2'])
+H3_FONT = (FONTS['quicksand'], FONT_SIZES['h3'])
+H4_FONT = (FONTS['hallo-sans'], FONT_SIZES['h4'])
+H5_FONT = (FONTS['hallo-sans'], FONT_SIZES['h5'])
 
 # Boid staying inside the screen box
 BOX_MARGIN = 200  # pixels

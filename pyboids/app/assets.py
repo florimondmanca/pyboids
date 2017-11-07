@@ -256,6 +256,8 @@ class FreetypeFontAssetLoader(AssetLoader):
 
     @classmethod
     def get_asset(cls, file_path, *, size=20):
+        if not pygame.freetype.was_init():
+            pygame.freetype.init()
         return pygame.freetype.Font(file_path, size)
 
 
@@ -275,4 +277,4 @@ def freetype(filename='', *, size=20):
     """
     if not filename:
         filename = settings.DEFAULT_FONT
-    return FontAssetLoader.load(filename, size=size)
+    return FreetypeFontAssetLoader.load(filename, size=size)
