@@ -1,6 +1,7 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
+"""pyboids by florimondmanca.
+
+Implementation of the Boid Flocking Behaviour algorithms.
+"""
 
 import app
 
