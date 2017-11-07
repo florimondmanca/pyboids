@@ -192,7 +192,7 @@ def music(filename, *, volume=1):
 
 
 class FontAssetLoader(AssetLoader):
-    """Font Loader."""
+    """Font loader."""
 
     asset_type = 'font'
     search_dirs = settings.FONT_DIRS
@@ -229,7 +229,7 @@ class FontAssetLoader(AssetLoader):
         return FontAssetLoader.Font(file_path, size)
 
 
-def font(filename=None, *, size=20):
+def font(filename='', *, size=20):
     """Load a font.
 
     Return a pygame.font.Font object.
@@ -243,6 +243,36 @@ def font(filename=None, *, size=20):
         The font size, in pixels.
         Default is 20.
     """
-    if filename is None:
+    if not filename:
+        filename = settings.DEFAULT_FONT
+    return FontAssetLoader.load(filename, size=size)
+
+
+class FreetypeFontAssetLoader(AssetLoader):
+    """Font loader using pygame.freetype."""
+
+    asset_type = 'font'
+    search_dirs = settings.FONT_DIRS
+
+    @classmethod
+    def get_asset(cls, file_path, *, size=20):
+        return pygame.freetype.Font(file_path, size)
+
+
+def freetype(filename='', *, size=20):
+    """Load a font.
+
+    Return a pygame.freetype.Font object.
+
+    Parameters
+    ----------
+    filename : str, optional
+        The font's file name, e.g. 'myfont.otf'.
+        Default is settings.DEFAULT_FONT
+    size : int, optional
+        The font size, in pixels.
+        Default is 20.
+    """
+    if not filename:
         filename = settings.DEFAULT_FONT
     return FontAssetLoader.load(filename, size=size)
