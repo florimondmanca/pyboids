@@ -16,7 +16,7 @@ class Boid(pygame.sprite.Sprite):
 
     def __init__(self, pos=None, vel=None, image_file="normal-boid.png"):
         super().__init__()
-        self.base_image, self.rect = utils.load_image(image_file)
+        self.base_image, self.rect = utils.load_image_and_rect(image_file)
         self.image = self.base_image
         self._pos = pos if pos is not None else np.zeros(2)
         self.vel = vel if vel is not None else np.zeros(2)

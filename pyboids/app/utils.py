@@ -6,12 +6,15 @@ import math
 from . import params
 
 
-def load_image_only(*path):
+def load_image(path, base=None):
     """Load the image using the full path to the image.
 
     Manages alpha conversion (e.g. png's).
     """
-    image = pygame.image.load(os.path.join(params.IMG_DIR, *list(path)))
+    if base is None:
+        base = params.IMG_DIR
+    file_path = os.path.join(base, path)
+    image = pygame.image.load(file_path)
     if image.get_alpha() is None:
         image = image.convert()
     else:
@@ -19,12 +22,12 @@ def load_image_only(*path):
     return image
 
 
-def load_image(*path):
+def load_image_and_rect(*path):
     """Load the image using the full path to the image.
 
     Also returns the image's rect.
     """
-    image = load_image_only(*path)
+    image = load_image(*path)
     return image, image.get_rect()
 
 
