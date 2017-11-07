@@ -5,6 +5,11 @@ import math
 from . import params
 
 
+def randrange(a, b):
+    """Random number between a and b."""
+    return a + np.random.random() * (b - a)
+
+
 def px_to_grid(px_pos):
     """Convert pixel position to grid position."""
     return px_pos[0] / params.COL, px_pos[1] / params.ROW

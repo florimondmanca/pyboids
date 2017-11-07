@@ -17,7 +17,7 @@ class Boid(pygame.sprite.Sprite):
 
     image_file = 'normal-boid.png'
 
-    def __init__(self, pos=None, vel=None):
+    def __init__(self, pos=None, vel=None, mass=20):
         super().__init__()
         if pos is None:
             pos = np.zeros(2)
@@ -25,12 +25,11 @@ class Boid(pygame.sprite.Sprite):
             vel = np.zeros(2)
         self.base_image, self.rect = assets.image_with_rect(self.image_file)
         self.image = self.base_image
-        self._pos = pos
+        self.pos = pos
         self.vel = vel
-        self.rect.center = self._pos
+        self.mass = mass
         self.steering = np.zeros(2)
-        self.mass = 20
-        self.wandering_angle = np.pi * (2 * np.random.rand() - 1)
+        self.wandering_angle = utils.randrange(-np.pi, np.pi)
 
     @property
     def pos(self):
