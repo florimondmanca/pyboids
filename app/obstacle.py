@@ -1,14 +1,12 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Obstacle class."""
 import pygame
 import numpy as np
 from . import utils, params
 
 
 class Obstacle(pygame.sprite.Sprite):
-    """ A circular obstacle for boids to avoid. """
+    """A circular obstacle for boids to avoid."""
+
     def __init__(self, pos=None, radius=params.OBSTACLE_DEFAULT_RADIUS):
         super().__init__()
         self.image, self.rect = utils.load_image("obstacle-circle.png")

@@ -1,20 +1,22 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Simulation classes."""
 import pygame
 from .flock import Flock
 from . import params, utils
 from time import time
 
 
-def actionize(func, self, behaviour):
-    def actionized():
-        return func(self, behaviour)
-    return actionized
+def callback(*args, **kwargs):
+    """Make a no-argument callback from a function."""
+    def wrapper(f):
+        def wrapped():
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 class Simulation:
+    """Represent a simulation of a flock."""
+
     def __init__(self, screen):
         self.running = True
         self.screen = screen
@@ -94,9 +96,9 @@ class Simulation:
         # add behaviour toggle buttons
         for k, behaviour in enumerate(self.flock.behaviours):
             # v decorate to prevent a bug
+            @callback(self, behaviour)
             def do_action(self, behaviour):
                 self.toggle_behaviour(behaviour)
-            do_action = actionize(do_action, self, behaviour)
             # ^
             self.to_update.add(utils.ToggleButton(
                 pos=(0.2, 0.2 + 0.3 * (1 + k)),

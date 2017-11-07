@@ -1,18 +1,22 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Boid class."""
 import pygame
 import numpy as np
 from . import utils, params
 
 
 class Boid(pygame.sprite.Sprite):
-    """A normal boid that can seek after, fly away from,
-    or pursue a target boid """
-    def __init__(self, pos=None, vel=None, name="normal-boid.png"):
+    """A normal boid.
+
+    Parameters
+    ----------
+    pos : np.array
+    vel : np.array
+    image_file : str
+    """
+
+    def __init__(self, pos=None, vel=None, image_file="normal-boid.png"):
         super().__init__()
-        self.base_image, self.rect = utils.load_image(name)
+        self.base_image, self.rect = utils.load_image(image_file)
         self.image = self.base_image
         self._pos = pos if pos is not None else np.zeros(2)
         self.vel = vel if vel is not None else np.zeros(2)
@@ -36,7 +40,7 @@ class Boid(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def steer(self, force, alt_max=None):
-        """ Adds a force to the current steering force """
+        """Add a force to the current steering force."""
         # limit the steering each time we add a force
         if alt_max is not None:
             self.steering += utils.truncate(force / self.mass, alt_max)
@@ -84,6 +88,7 @@ class Boid(pygame.sprite.Sprite):
 
 
 class LeaderBoid(Boid):
-    """ A boid that others boids want to follow (seek) """
+    """A boid that others boids want to follow."""
+
     def __init__(self, pos=None, vel=None):
         super().__init__(pos, vel, name="leader-boid.png")

@@ -1,7 +1,4 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Menu screen."""
 import pygame
 from . import params, utils
 from .simulation import Simulation
@@ -12,6 +9,8 @@ key_to_function = {
 
 
 class Menu:
+    """The menu loop."""
+
     def __init__(self):
         self.running = True
         self.screen = pygame.display.set_mode(params.SCREEN_SIZE)

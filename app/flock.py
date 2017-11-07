@@ -1,7 +1,4 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Flock class."""
 import pygame
 import numpy as np
 from . import params, utils
@@ -10,10 +7,8 @@ from .obstacle import Obstacle
 
 
 class Flock(pygame.sprite.Sprite):
-    """
-    Flock() -> Flock
-    Represents a set of boids that obey to certain behaviours.
-    """
+    """Represents a set of boids that obey to certain behaviours."""
+
     def __init__(self):
         super().__init__()
         self.normal_boids = pygame.sprite.Group()
@@ -37,8 +32,10 @@ class Flock(pygame.sprite.Sprite):
         self.add_kind = self.kinds[0]
 
     def add_element(self, pos):
-        """ Adds a normal boid, a leader boid or an obstacle at pos based
-        on the current add_kind value. """
+        """Add a boid at pos.
+
+        The type of boid is the current add_kind value.
+        """
         angle = np.pi * (2 * np.random.rand() - 1)
         vel = params.BOID_MAX_SPEED * np.array([np.cos(angle), np.sin(angle)])
         if self.add_kind == "normal-boid":
@@ -70,7 +67,7 @@ class Flock(pygame.sprite.Sprite):
         boid.steer(steering, alt_max=params.BOID_MAX_FORCE / 50)
 
     def seek(self, target_boid):
-        """ Makes all normal boids seek to go to a target. """
+        """Make all normal boids seek to go to a target."""
         for boid in self.normal_boids:
             self.seek_single(target_boid, boid)
 
@@ -82,7 +79,7 @@ class Flock(pygame.sprite.Sprite):
             boid.steer(steering, alt_max=params.BOID_MAX_FORCE / 10)
 
     def flee(self, target_boid):
-        """ Makes all normal boids fly away from a target. """
+        """Make all normal boids fly away from a target."""
         for boid in self.normal_boids:
             self.flee_single(target_boid, boid)
 
@@ -92,8 +89,7 @@ class Flock(pygame.sprite.Sprite):
         self.seek_single(future_pos, boid)
 
     def pursue(self, target_boid):
-        """ Makes all normal boids pursue a target boid,
-        anticipating its future position. """
+        """Make all normal boids pursue a target boid with anticipation."""
         for boid in self.normal_boids:
             self.pursue_single(target_boid.pos, target_boid.vel, boid)
 
@@ -103,13 +99,12 @@ class Flock(pygame.sprite.Sprite):
         self.flee_single(future_pos, boid)
 
     def escape(self, target_boid):
-        """ Makes all normal boids escape from a target boid,
-        anticipating its future position. """
+        """Make all normal boids escape a target boid with anticipation."""
         for boid in self.normal_boids:
             self.escape_single(target_boid.pos, target_boid.vel, boid)
 
     def wander(self):
-        """ Makes all boids wander around randomly. """
+        """Make all boids wander around randomly."""
         rands = 2 * np.random.rand(len(self.boids)) - 1
         cos = np.cos([b.wandering_angle for b in self.boids])
         sin = np.sin([b.wandering_angle for b in self.boids])
@@ -137,7 +132,7 @@ class Flock(pygame.sprite.Sprite):
         return most_threatening
 
     def avoid_collision(self):
-        """ Avoids collisions between boids and obstacles. """
+        """Avoid collisions between boids and obstacles."""
         for boid in self.boids:
             ahead = boid.pos + boid.vel / params.BOID_MAX_SPEED * \
                 params.MAX_SEE_AHEAD
@@ -169,10 +164,12 @@ class Flock(pygame.sprite.Sprite):
             self.separate_single(boid)
 
     def follow_leader(self, leader):
+        """Make all normal boids follow a leader.
+
+        Boids stay at a certain distance from the leader.
+        They move away when in the leader's path.
+        They avoid cluttering when behind the leader.
         """
-        Makes all normal boids follow a leader, staying at a certain
-        distance from it, moving away when they're in the leader's path,
-        and avoiding cluttering of boids behind the leader. """
         nvel = utils.normalize(leader.vel)
         behind = leader.pos - nvel * params.LEADER_BEHIND_DIST
         ahead = leader.pos + nvel * params.LEADER_AHEAD_DIST
@@ -181,7 +178,7 @@ class Flock(pygame.sprite.Sprite):
             self.escape_single(ahead, leader.vel, boid)
 
     def align(self):
-        """ Tendency of boids to align their velocities """
+        """Make all boids to align their velocities."""
         r2 = params.ALIGN_RADIUS * params.ALIGN_RADIUS
         # find the neighbors
         boids = list(self.normal_boids)
@@ -204,9 +201,7 @@ class Flock(pygame.sprite.Sprite):
                 boid.steer(desired / n_neighbors - boid.vel)
 
     def flock(self):
-        """
-        Simulates flocking behaviour : alignment + separation + cohesion
-        """
+        """Simulate flocking behaviour : alignment + separation + cohesion."""
         self.align()
         for boid in self.boids:
             self.separate_single(boid)

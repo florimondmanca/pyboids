@@ -1,7 +1,4 @@
-# pyboids by mancaf
-# Implementing the Boid Flocking Behaviour algorithm
-# in Python and Pygame
-
+"""Simulation parameters."""
 import os
 import pygame
 import pygame.freetype
