@@ -1,6 +1,8 @@
 """Menu screen."""
 import pygame
-from . import params, utils
+from . import params
+from . import utils
+from . import assets
 from .simulation import Simulation
 
 key_to_function = {
@@ -14,7 +16,7 @@ class Menu:
     def __init__(self):
         self.running = True
         self.screen = pygame.display.set_mode(params.SCREEN_SIZE)
-        pygame.display.set_icon(utils.load_image("boids-logo.png"))
+        pygame.display.set_icon(assets.image('boids-logo.png'))
         pygame.display.set_caption(params.CAPTION)
         self.clock = pygame.time.Clock()
         self.to_update = pygame.sprite.Group()
