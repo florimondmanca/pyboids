@@ -25,6 +25,28 @@ def norm2(vector):
     return vector[0] * vector[0] + vector[1] * vector[1]
 
 
+def dist2(a, b):
+    """Return the square distance between two vectors.
+
+    Parameters
+    ----------
+    a : np.array
+    b : np.array
+    """
+    return norm2(a - b)
+
+
+def dist(a, b):
+    """Return the distance between two vectors.
+
+    Parameters
+    ----------
+    a : np.array
+    b : np.array
+    """
+    return norm(a - b)
+
+
 def normalize(vector, pre_computed=None):
     """Return the normalized version of a vector.
 

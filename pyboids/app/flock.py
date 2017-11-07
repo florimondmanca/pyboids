@@ -60,7 +60,7 @@ class Flock(pygame.sprite.Sprite):
                 boid.steer(np.array([0., -params.STEER_INSIDE]))
 
     def seek_single(self, target_pos, boid):
-        d = boid.dist_pos(target_pos)
+        d = utils.dist(boid.pos, target_pos)
         steering = utils.normalize(target_pos - boid.pos)
         steering *= params.BOID_MAX_SPEED * min(d / params.R_SEEK, 1)
         steering -= boid.vel
@@ -72,7 +72,7 @@ class Flock(pygame.sprite.Sprite):
             self.seek_single(target_boid, boid)
 
     def flee_single(self, target_pos, boid):
-        if boid.dist_pos2(target_pos) < params.R_FLEE * params.R_FLEE:
+        if utils.dist2(boid.pos, target_pos) < params.R_FLEE * params.R_FLEE:
             steering = utils.normalize(boid.pos - target_pos)
             steering *= params.BOID_MAX_SPEED
             steering -= boid.vel
@@ -121,14 +121,18 @@ class Flock(pygame.sprite.Sprite):
 
     def find_most_threatening_obstacle(self, boid, aheads):
         most_threatening = None
+        distance_to_most_threatening = float('inf')
         for obstacle in self.obstacles:
             norms = [utils.norm2(obstacle.pos - ahead) for ahead in aheads]
             if all(n > obstacle.radius * obstacle.radius for n in norms):
                 continue
+            distance_to_obstacle = utils.dist2(boid.pos, obstacle.pos)
             if most_threatening is not None and \
-                    boid.dist2(obstacle) > boid.dist2(most_threatening):
+                    distance_to_obstacle > distance_to_most_threatening:
                 continue
             most_threatening = obstacle
+            distance_to_most_threatening = utils.dist2(boid.pos,
+                                                       most_threatening.pos)
         return most_threatening
 
     def avoid_collision(self):
@@ -188,7 +192,7 @@ class Flock(pygame.sprite.Sprite):
                     continue
                 elif boid == other_boid:
                     continue
-                elif boid.dist2(other_boid) < r2:
+                elif utils.dist2(boid.pos, other_boid.pos) < r2:
                     neighbors[i].append(j)
                     neighbors[j].append(i)
         for i, boid in enumerate(boids):
@@ -226,4 +230,6 @@ class Flock(pygame.sprite.Sprite):
         for obstacle in self.obstacles:
             obstacle.display(screen)
         for boid in self.boids:
-            boid.display(screen)
+            boid.display(screen, debug=params.DEBUG)
+        for boid in self.boids:
+            boid.reset_frame()
