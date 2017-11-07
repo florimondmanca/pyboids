@@ -142,7 +142,6 @@ class Flock(pygame.sprite.Sprite):
                 boid, [ahead, ahead2, boid.pos])
             if most_threatening is not None:
                 steering = utils.normalize(ahead - most_threatening.pos)
-                print(steering)
                 steering *= params.MAX_AVOID_FORCE
                 boid.steer(steering)
 

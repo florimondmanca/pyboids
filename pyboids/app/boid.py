@@ -93,4 +93,4 @@ class LeaderBoid(Boid):
     """A boid that others boids want to follow."""
 
     def __init__(self, pos=None, vel=None):
-        super().__init__(pos, vel, name="leader-boid.png")
+        super().__init__(pos, vel, image_file="leader-boid.png")

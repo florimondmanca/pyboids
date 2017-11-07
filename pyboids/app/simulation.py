@@ -1,7 +1,8 @@
 """Simulation classes."""
 import pygame
 from .flock import Flock
-from . import params, utils
+from . import params
+from . import gui
 from time import time
 
 
@@ -25,7 +26,7 @@ class Simulation:
         self.to_update = pygame.sprite.Group()
         self.to_display = pygame.sprite.Group()
         self.temp_message = pygame.sprite.GroupSingle()
-        self.fps_message = utils.FPSMessage(pos=(11, 0.5), text="FPS: ...")
+        self.fps_message = gui.FPSMessage(pos=(11, 0.5), text="FPS: ...")
 
     def add_element(self, pos):
         self.flock.add_element(pos)
@@ -37,7 +38,7 @@ class Simulation:
         else:
             msg += "obstacles: {}".format(len(self.flock.obstacles))
         self.temp_message.add(
-            utils.TempMessage(pos=(6, 1), text=msg))
+            gui.TempMessage(pos=(6, 1), text=msg))
 
     def toggle_behaviour(self, behaviour):
         self.flock.behaviours[behaviour] = not self.flock.behaviours[behaviour]
@@ -69,24 +70,24 @@ class Simulation:
         # for x in range(1, 11):
         #   for y in range(3, 7):
         #       self.flock.add_element(utils.grid_to_px((x, y)))
-        self.temp_message.add(utils.TempMessage(
+        self.temp_message.add(gui.TempMessage(
             pos=(6, 4.5),
             text="Add entities and get steering !",
             font=params.H3_FONT)
         )
         self.to_update = pygame.sprite.Group(
             self.flock,
-            utils.ToggleButton(
+            gui.ToggleButton(
                 pos=(0.2, 8),
                 text="Entity : ",
                 labels=self.flock.kinds,
                 init_label=self.flock.add_kind,
                 action=lambda: self.flock.switch_element()),
-            utils.ToggleButton(
+            gui.ToggleButton(
                 pos=(0.2, 8.5),
                 text="ADD ENTITY",
                 action=lambda: self.add_element(params.SCREEN_CENTER)),
-            utils.ToggleButton(
+            gui.ToggleButton(
                 pos=(8.5, 8.5),
                 text="Show forces, velocities and frame: ",
                 labels="Yes No".split(),
@@ -100,7 +101,7 @@ class Simulation:
             def do_action(self, behaviour):
                 self.toggle_behaviour(behaviour)
             # ^
-            self.to_update.add(utils.ToggleButton(
+            self.to_update.add(gui.ToggleButton(
                 pos=(0.2, 0.2 + 0.3 * (1 + k)),
                 text="{}: ".format(behaviour.title()),
                 labels="off on".split(),
